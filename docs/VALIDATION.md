@@ -8,4 +8,4 @@ The final wheel was built without runtime dependencies, installed into an isolat
 
 An earlier 1,000-file synthetic run on this machine took 4.691 seconds for cold verification/copy and 0.170 seconds with the existing verification journal. These numbers describe that fixture, not the performance of a multi-million-file migration.
 
-GitHub CI is configured for Windows and Linux with Python 3.11 and 3.13. Those hosted jobs have not been run. The tool has not been published.
+GitHub CI runs on Windows and Linux with Python 3.11 and 3.13. See the [hosted fixture results](https://github.com/quorraa/ai-storage-mover/actions/workflows/test.yml) for each published revision. The source is published at [quorraa/ai-storage-mover](https://github.com/quorraa/ai-storage-mover).

@@ -1,5 +1,7 @@
 # AI Storage Mover
 
+[![Fixture tests](https://github.com/quorraa/ai-storage-mover/actions/workflows/test.yml/badge.svg)](https://github.com/quorraa/ai-storage-mover/actions/workflows/test.yml)
+
 Keep desktop software installed and move the projects, profiles, package caches and build temp it uses. Windows first, with a standard-library Python CLI, an independent local dashboard, and explicit JSON path plans. Project names and drive letters are inputs.
 
 This is an initial release. It is not a universal Windows app relocator. WindowsApps, Windows-managed `AppData/Local/Packages`, and the Windows directory are excluded. Installed desktop software stays registered in its original location. Portable tool binaries can be included as explicit roots if their updater supports it.
