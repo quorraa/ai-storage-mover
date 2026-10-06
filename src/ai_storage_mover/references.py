@@ -127,13 +127,17 @@ def repoint_codex(plan, profile):
         with closing(sqlite3.connect(archive / 'state.before.sqlite')) as backup:
             db.backup(backup)
         db.execute('BEGIN IMMEDIATE')
-        for table, keys, column in [('threads', ('id',), 'cwd'), ('project_roots', ('project_id', 'position'), 'path')]:
-            counts[table] = 0
+        fields = [('threads', ('id',), 'cwd'), ('project_roots', ('project_id', 'position'), 'path')]
+        thread_columns = {r[1] for r in db.execute('PRAGMA table_info(threads)')}
+        fields += [('threads', ('id',), name) for name in ('rollout_path', 'agent_path') if name in thread_columns]
+        for table, keys, column in fields:
+            counter = table if column in ('cwd', 'path') else table + '.' + column
+            counts[counter] = 0
             for row in db.execute('SELECT ' + ','.join((*keys, column)) + ' FROM ' + table).fetchall():
                 value = map_path(row[-1], plan['roots'])
                 if value != row[-1]:
                     cursor = db.execute('UPDATE ' + table + ' SET ' + column + '=? WHERE ' + ' AND '.join(k + '=?' for k in keys) + ' AND ' + column + '=?', (value, *row[:-1], row[-1]))
-                    counts[table] += cursor.rowcount
+                    counts[counter] += cursor.rowcount
         db.commit()
         if db.execute('PRAGMA quick_check').fetchall() != [('ok',)]:
             raise MigrationError('Codex state integrity failed after path update')

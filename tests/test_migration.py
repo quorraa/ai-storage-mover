@@ -279,17 +279,21 @@ class Fixture(unittest.TestCase):
         profile = self.root / 'profile'
         profile.mkdir()
         with closing(sqlite3.connect(profile / 'state_5.sqlite')) as db:
-            db.execute('CREATE TABLE threads (id TEXT,cwd TEXT,message TEXT)')
+            db.execute('CREATE TABLE threads (id TEXT,cwd TEXT,message TEXT,rollout_path TEXT,agent_path TEXT)')
             db.execute('CREATE TABLE project_roots (project_id TEXT,position INTEGER,path TEXT)')
-            db.execute('INSERT INTO threads VALUES (?,?,?)', ('chat', str(self.source), 'historical source reference ' + str(self.source)))
+            db.execute('INSERT INTO threads VALUES (?,?,?,?,?)', ('chat', str(self.source), 'historical source reference ' + str(self.source), str(self.source / 'session.jsonl'), None))
             db.execute('INSERT INTO project_roots VALUES (?,?,?)', ('project', 0, str(self.source)))
             db.commit()
         counts = repoint_codex(self.plan, profile)
         self.assertEqual(counts['threads'], 1)
+        self.assertEqual(counts['threads.rollout_path'], 1)
+        self.assertEqual(counts['threads.agent_path'], 0)
         with closing(sqlite3.connect(profile / 'state_5.sqlite')) as db:
-            row = db.execute('SELECT cwd,message FROM threads').fetchone()
+            row = db.execute('SELECT cwd,message,rollout_path,agent_path FROM threads').fetchone()
             self.assertEqual(row[0], str(self.target))
             self.assertIn(str(self.source), row[1])
+            self.assertEqual(row[2], str(self.target / 'session.jsonl'))
+            self.assertIsNone(row[3])
 
     def test_explicit_json_repoint_creates_backup(self):
         config = self.root / 'settings.json'
