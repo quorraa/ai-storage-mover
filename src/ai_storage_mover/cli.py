@@ -13,6 +13,7 @@ from .engine import Engine, run_lock
 from .model import MigrationError, atomic_json, discover, make_plan, read_json, validate
 from .runtime import launch, settings
 from .references import repoint_files, repoint_codex, repoint_claude
+from .configure import configure
 
 
 def dashboard(run, port=0, open_browser=True):
@@ -94,6 +95,20 @@ def main(argv=None):
     references.add_argument('--codex-home')
     references.add_argument('--claude-home')
     references.add_argument('--claude-desktop-home', help='Explicit desktop data folder; package registration and files stay in place')
+    setup = commands.add_parser('configure', help='Repair saved provider paths and configure future projects, builds, temp and MCP caches without rescanning files')
+    setup.add_argument('--plan', required=True)
+    setup.add_argument('--runtime', required=True)
+    setup.add_argument('--codex-home')
+    setup.add_argument('--claude-home')
+    setup.add_argument('--claude-desktop-home', action='append', default=[])
+    setup.add_argument('--apps-closed', action='store_true')
+    setup.add_argument('--projects', help='Default directory for new projects')
+    windows = commands.add_parser('setup', help='Windows guided setup: preflight, cutover, cached paths, future writes and launchers')
+    windows.add_argument('--plan', required=True)
+    windows.add_argument('--storage-root', required=True)
+    windows.add_argument('--projects')
+    windows.add_argument('--configure-only', action='store_true', help='Skip file migration; repair configuration after a completed cutover')
+    windows.add_argument('--apps-closed', action='store_true')
     args = parser.parse_args(argv)
     try:
         if args.action == 'plan':
@@ -122,6 +137,19 @@ def main(argv=None):
             if args.runtime:
                 cmd += ['-RuntimePath', str(Path(args.runtime).absolute())]
             return subprocess.call(cmd)
+        elif args.action == 'setup':
+            if os.name != 'nt':
+                raise MigrationError('The guided setup is a Windows feature; use configure on other systems')
+            cmd = ['powershell.exe', '-NoProfile', '-File', str(Path(__file__).with_name('Setup-Storage.ps1')),
+                   '-PlanPath', str(Path(args.plan).absolute()), '-StorageRoot', str(Path(args.storage_root).absolute()),
+                   '-PythonPath', sys.executable]
+            if args.projects:
+                cmd += ['-ProjectsPath', str(Path(args.projects).absolute())]
+            if args.configure_only:
+                cmd += ['-ConfigureOnly']
+            if args.apps_closed:
+                cmd += ['-AppsClosed']
+            return subprocess.call(cmd)
         else:
             value = validate(read_json(args.plan))
             if args.action == 'inspect':
@@ -135,6 +163,11 @@ def main(argv=None):
                         result['codex'] = repoint_codex(value, args.codex_home)
                     if args.claude_home or args.claude_desktop_home:
                         result['claude'] = repoint_claude(value, args.claude_home, args.claude_desktop_home)
+                    print(json.dumps(result, indent=2))
+            elif args.action == 'configure':
+                with run_lock(Path(value['run_dir'])):
+                    result = configure(value, read_json(args.runtime), codex=args.codex_home, claude=args.claude_home,
+                                       desktops=args.claude_desktop_home, projects=args.projects, apps_closed=args.apps_closed)
                     print(json.dumps(result, indent=2))
             else:
                 with run_lock(Path(value['run_dir'])), closing(Engine(value)) as engine:

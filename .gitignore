@@ -8,3 +8,5 @@ dist/
 *.local.json
 *.sqlite*
 benchmark-results.json
+tools/browser-state/
+.migrations/

@@ -14,6 +14,8 @@ environment = dict(os.environ, PYTHONPATH=str(installed))
 package = installed / 'ai_storage_mover'
 assert (package / 'dashboard.html').is_file()
 assert (package / 'Activate-Package.ps1').is_file()
+assert (package / 'Setup-Storage.ps1').is_file()
+assert (package / 'repair_claude_browser_state.cjs').is_file()
 subprocess.run([sys.executable, '-m', 'ai_storage_mover', '--help'], env=environment, check=True, stdout=subprocess.DEVNULL)
 fixture = Path(tempfile.mkdtemp(prefix='dashboard-smoke-', dir=base))
 (fixture / 'status.json').write_text(json.dumps({'phase': 'done', 'percent': 100, 'done': 3, 'total': 3, 'detail': 'fixture'}))

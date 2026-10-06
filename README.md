@@ -16,6 +16,24 @@ Review the plan before applying it. To select other data or a portable tool dire
 
 For development without installation, set `PYTHONPATH` to the repository's `src` directory and use `python -m ai_storage_mover` instead of `ai-storage-mover`.
 
+## Windows setup
+
+After reviewing the plan, quit the AI apps and any terminals writing to the selected folders. Keep the setup terminal outside those source folders. Open `dashboard` in another terminal, then run:
+
+```powershell
+ai-storage-mover setup --plan move.local.json --storage-root D:\AI --apps-closed
+# Optional: choose the default folder for future projects.
+# Add --projects D:\Projects
+```
+
+This command checks running AI apps before scanning, performs one resumable sync/cutover, repairs provider project/session/transcript references and Claude's saved browser workspace selectors, merges temp/cache values into tool and MCP configuration, saves user cache/profile defaults, and adds global instructions for new projects. It updates selected-path shortcuts, Explorer pins and open folder views, and creates package-safe desktop launchers and an AI terminal shortcut under `D:\AI\Launchers`. Profile switches require a matching selected profile root or an existing profile setting on the chosen storage drive; an unselected existing profile is never replaced with an empty one.
+
+The optional Claude browser adapter installs `classic-level@3.0.0` with npm under the storage drive when a Claude desktop store is present. That step requires Node.js, npm and network access; installation scripts are disabled. The rest of the tool has no runtime dependencies. Authentication values are not edited and no browser debugging port is opened. Windows-managed package directories stay in place.
+
+If the files have already moved, use `setup --configure-only` with the same plan and storage arguments. This repairs configuration and launchers without enumerating or copying project files again. A failed setup retains backups and reports the actual failed step. Reopen apps from the new launchers and reopen old terminal tabs before checking paths. Check the apps before explicitly running `retire` with the plan's exact ID.
+
+`configure` provides the provider/configuration portion on other operating systems, with explicit `--runtime`, profile directories and `--apps-closed`. It does not persist Windows environment variables or edit shortcuts.
+
 ## Migration
 
 Open the dashboard in one terminal. Use a second terminal whose working directory is outside every source root.
@@ -69,9 +87,20 @@ Projects and `.venv` directories should reside on the storage drive alongside th
 
 ## Validation and sharing
 
+Claude desktop also keeps workspace selectors and file-view paths in its browser state. If a saved workspace still opens on the old drive after `references` and a restart, quit Claude completely and use the optional offline adapter from the repository root:
+
+```powershell
+npm install --prefix tools/browser-state --ignore-scripts --no-audit --no-fund classic-level@3.0.0
+node tools/repair_claude_browser_state.cjs move.local.json "C:\Users\YOUR_NAME\AppData\Local\Packages\CLAUDE_PACKAGE\LocalCache\Roaming\Claude\Local Storage\leveldb"
+```
+
+This optional adapter requires Node.js. It backs up the selected store, identifies a whitelist of Claude workspace/UI keys on a separate copy, checks for concurrent changes, obtains the native database lock, writes one atomic batch and verifies the values. Other keys, including authentication data, are retained. It edits the existing store in place and does not relocate Windows-managed package storage or expose a browser debugging endpoint. Backups are private migration evidence; keep them out of GitHub.
+
 ```powershell
 $env:PYTHONPATH = "$PWD\src"
 python -m unittest discover -s tests -v
+# Optional native browser-state fixtures after installing classic-level above:
+node tools\test_browser_state.cjs
 python tools\benchmark.py --files 1000
 ```
 

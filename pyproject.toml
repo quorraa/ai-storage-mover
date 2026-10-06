@@ -15,7 +15,7 @@ dependencies = []
 ai-storage-mover = "ai_storage_mover.cli:main"
 
 [tool.setuptools.package-data]
-ai_storage_mover = ["dashboard.html", "Activate-Package.ps1"]
+ai_storage_mover = ["dashboard.html", "Activate-Package.ps1", "Setup-Storage.ps1", "repair_claude_browser_state.cjs"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
