@@ -11,6 +11,10 @@ license = {text = "MIT"}
 readme = "README.md"
 dependencies = []
 
+[project.urls]
+Repository = "https://github.com/quorraa/ai-storage-mover"
+Issues = "https://github.com/quorraa/ai-storage-mover/issues"
+
 [project.scripts]
 ai-storage-mover = "ai_storage_mover.cli:main"
 

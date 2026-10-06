@@ -7,6 +7,8 @@ This is an initial release. It is not a universal Windows app relocator. Windows
 Requires Python 3.11+; Windows directory links use junctions. File links require Developer Mode or administrator rights. The core also works with ordinary directories and symlinks on Linux/macOS. No Python runtime dependencies.
 
 ```powershell
+git clone https://github.com/quorraa/ai-storage-mover.git
+cd ai-storage-mover
 python -m pip install .
 ai-storage-mover plan --storage-root D:\AI --project "C:\Projects\My Agent" --profile codex --profile claude --profile caches --output move.local.json
 ai-storage-mover inspect --plan move.local.json
