@@ -54,7 +54,13 @@ def candidates(home=None, environment=None):
         add('uv Python versions (older layout)', roaming / 'uv' / 'python', 'toolchain', 'Toolchains/uv/python')
         add('uv installed tools (older layout)', roaming / 'uv' / 'tools', 'toolchain', 'Toolchains/uv/tools')
         add('Codex desktop cache', local / 'Codex', 'cache', 'Cache/codex-desktop')
-        add('Codex desktop settings', roaming / 'Codex', 'profile', 'Profiles/codex-desktop')
+        desktop = env.get('CODEX_ELECTRON_USER_DATA_PATH')
+        if desktop:
+            add('Codex desktop profile', desktop, 'profile', 'Profiles/codex-desktop', 'codex-desktop')
+        elif not any((local / 'Packages').glob('OpenAI.Codex_*')):
+            # A packaged app can virtualize this ordinary path to a different store.
+            # Do not select a stale/empty roaming copy as its active browser profile.
+            add('Codex desktop profile', roaming / 'Codex', 'profile', 'Profiles/codex-desktop', 'codex-desktop')
         add('npm global packages', env.get('NPM_CONFIG_PREFIX') or roaming / 'npm', 'toolchain', 'Toolchains/npm-global')
     # Shared Windows temp is a future-write suggestion, NEVER a migration root.
     shared = [local / 'Temp', Path(env.get('WINDIR', 'C:/Windows')) / 'Temp']

@@ -1,0 +1,611 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-06T23:11:40Z",
+  "title": "Design System: AI Storage Mover",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Light canvas",
+        "tonalRamp": [
+          "oklch(15.00% 0.0029 264.54)",
+          "oklch(26.43% 0.0029 264.54)",
+          "oklch(37.86% 0.0029 264.54)",
+          "oklch(49.29% 0.0029 264.54)",
+          "oklch(60.71% 0.0029 264.54)",
+          "oklch(72.14% 0.0029 264.54)",
+          "oklch(83.57% 0.0029 264.54)",
+          "oklch(95.00% 0.0029 264.54)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Light surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0.00)",
+          "oklch(26.43% 0.0000 0.00)",
+          "oklch(37.86% 0.0000 0.00)",
+          "oklch(49.29% 0.0000 0.00)",
+          "oklch(60.71% 0.0000 0.00)",
+          "oklch(72.14% 0.0000 0.00)",
+          "oklch(83.57% 0.0000 0.00)",
+          "oklch(95.00% 0.0000 0.00)"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Light text",
+        "tonalRamp": [
+          "oklch(15.00% 0.0157 269.06)",
+          "oklch(26.43% 0.0157 269.06)",
+          "oklch(37.86% 0.0157 269.06)",
+          "oklch(49.29% 0.0157 269.06)",
+          "oklch(60.71% 0.0157 269.06)",
+          "oklch(72.14% 0.0157 269.06)",
+          "oklch(83.57% 0.0157 269.06)",
+          "oklch(95.00% 0.0157 269.06)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Light muted",
+        "tonalRamp": [
+          "oklch(15.00% 0.0261 271.72)",
+          "oklch(26.43% 0.0261 271.72)",
+          "oklch(37.86% 0.0261 271.72)",
+          "oklch(49.29% 0.0261 271.72)",
+          "oklch(60.71% 0.0261 271.72)",
+          "oklch(72.14% 0.0261 271.72)",
+          "oklch(83.57% 0.0261 271.72)",
+          "oklch(95.00% 0.0261 271.72)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Light line",
+        "tonalRamp": [
+          "oklch(15.00% 0.0105 261.79)",
+          "oklch(26.43% 0.0105 261.79)",
+          "oklch(37.86% 0.0105 261.79)",
+          "oklch(49.29% 0.0105 261.79)",
+          "oklch(60.71% 0.0105 261.79)",
+          "oklch(72.14% 0.0105 261.79)",
+          "oklch(83.57% 0.0105 261.79)",
+          "oklch(95.00% 0.0105 261.79)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Light accent",
+        "tonalRamp": [
+          "oklch(15.00% 0.1935 276.20)",
+          "oklch(26.43% 0.1935 276.20)",
+          "oklch(37.86% 0.1935 276.20)",
+          "oklch(49.29% 0.1935 276.20)",
+          "oklch(60.71% 0.1935 276.20)",
+          "oklch(72.14% 0.1935 276.20)",
+          "oklch(83.57% 0.1935 276.20)",
+          "oklch(95.00% 0.1935 276.20)"
+        ]
+      },
+      "accent-ink": {
+        "role": "primary",
+        "displayName": "Light accent ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.0000 0.00)",
+          "oklch(26.43% 0.0000 0.00)",
+          "oklch(37.86% 0.0000 0.00)",
+          "oklch(49.29% 0.0000 0.00)",
+          "oklch(60.71% 0.0000 0.00)",
+          "oklch(72.14% 0.0000 0.00)",
+          "oklch(83.57% 0.0000 0.00)",
+          "oklch(95.00% 0.0000 0.00)"
+        ]
+      },
+      "tint": {
+        "role": "primary",
+        "displayName": "Light tint",
+        "tonalRamp": [
+          "oklch(15.00% 0.0214 283.13)",
+          "oklch(26.43% 0.0214 283.13)",
+          "oklch(37.86% 0.0214 283.13)",
+          "oklch(49.29% 0.0214 283.13)",
+          "oklch(60.71% 0.0214 283.13)",
+          "oklch(72.14% 0.0214 283.13)",
+          "oklch(83.57% 0.0214 283.13)",
+          "oklch(95.00% 0.0214 283.13)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "Light hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.0070 268.55)",
+          "oklch(26.43% 0.0070 268.55)",
+          "oklch(37.86% 0.0070 268.55)",
+          "oklch(49.29% 0.0070 268.55)",
+          "oklch(60.71% 0.0070 268.55)",
+          "oklch(72.14% 0.0070 268.55)",
+          "oklch(83.57% 0.0070 268.55)",
+          "oklch(95.00% 0.0070 268.55)"
+        ]
+      },
+      "warning": {
+        "displayName": "Light warning",
+        "tonalRamp": [
+          "oklch(15.00% 0.0227 84.59)",
+          "oklch(26.43% 0.0227 84.59)",
+          "oklch(37.86% 0.0227 84.59)",
+          "oklch(49.29% 0.0227 84.59)",
+          "oklch(60.71% 0.0227 84.59)",
+          "oklch(72.14% 0.0227 84.59)",
+          "oklch(83.57% 0.0227 84.59)",
+          "oklch(95.00% 0.0227 84.59)"
+        ]
+      },
+      "warning-ink": {
+        "displayName": "Light warning ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.1022 76.10)",
+          "oklch(26.43% 0.1022 76.10)",
+          "oklch(37.86% 0.1022 76.10)",
+          "oklch(49.29% 0.1022 76.10)",
+          "oklch(60.71% 0.1022 76.10)",
+          "oklch(72.14% 0.1022 76.10)",
+          "oklch(83.57% 0.1022 76.10)",
+          "oklch(95.00% 0.1022 76.10)"
+        ]
+      },
+      "danger": {
+        "displayName": "Light danger",
+        "tonalRamp": [
+          "oklch(15.00% 0.1585 24.85)",
+          "oklch(26.43% 0.1585 24.85)",
+          "oklch(37.86% 0.1585 24.85)",
+          "oklch(49.29% 0.1585 24.85)",
+          "oklch(60.71% 0.1585 24.85)",
+          "oklch(72.14% 0.1585 24.85)",
+          "oklch(83.57% 0.1585 24.85)",
+          "oklch(95.00% 0.1585 24.85)"
+        ]
+      },
+      "danger-tint": {
+        "displayName": "Light danger tint",
+        "tonalRamp": [
+          "oklch(15.00% 0.0163 22.08)",
+          "oklch(26.43% 0.0163 22.08)",
+          "oklch(37.86% 0.0163 22.08)",
+          "oklch(49.29% 0.0163 22.08)",
+          "oklch(60.71% 0.0163 22.08)",
+          "oklch(72.14% 0.0163 22.08)",
+          "oklch(83.57% 0.0163 22.08)",
+          "oklch(95.00% 0.0163 22.08)"
+        ]
+      },
+      "success": {
+        "displayName": "Light success",
+        "tonalRamp": [
+          "oklch(15.00% 0.0906 167.46)",
+          "oklch(26.43% 0.0906 167.46)",
+          "oklch(37.86% 0.0906 167.46)",
+          "oklch(49.29% 0.0906 167.46)",
+          "oklch(60.71% 0.0906 167.46)",
+          "oklch(72.14% 0.0906 167.46)",
+          "oklch(83.57% 0.0906 167.46)",
+          "oklch(95.00% 0.0906 167.46)"
+        ]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Light focus",
+        "tonalRamp": [
+          "oklch(15.00% 0.1935 276.20)",
+          "oklch(26.43% 0.1935 276.20)",
+          "oklch(37.86% 0.1935 276.20)",
+          "oklch(49.29% 0.1935 276.20)",
+          "oklch(60.71% 0.1935 276.20)",
+          "oklch(72.14% 0.1935 276.20)",
+          "oklch(83.57% 0.1935 276.20)",
+          "oklch(95.00% 0.1935 276.20)"
+        ]
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "Dark canvas",
+        "tonalRamp": [
+          "oklch(15.00% 0.0122 270.79)",
+          "oklch(26.43% 0.0122 270.79)",
+          "oklch(37.86% 0.0122 270.79)",
+          "oklch(49.29% 0.0122 270.79)",
+          "oklch(60.71% 0.0122 270.79)",
+          "oklch(72.14% 0.0122 270.79)",
+          "oklch(83.57% 0.0122 270.79)",
+          "oklch(95.00% 0.0122 270.79)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.0157 269.06)",
+          "oklch(26.43% 0.0157 269.06)",
+          "oklch(37.86% 0.0157 269.06)",
+          "oklch(49.29% 0.0157 269.06)",
+          "oklch(60.71% 0.0157 269.06)",
+          "oklch(72.14% 0.0157 269.06)",
+          "oklch(83.57% 0.0157 269.06)",
+          "oklch(95.00% 0.0157 269.06)"
+        ]
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "Dark text",
+        "tonalRamp": [
+          "oklch(15.00% 0.0054 274.96)",
+          "oklch(26.43% 0.0054 274.96)",
+          "oklch(37.86% 0.0054 274.96)",
+          "oklch(49.29% 0.0054 274.96)",
+          "oklch(60.71% 0.0054 274.96)",
+          "oklch(72.14% 0.0054 274.96)",
+          "oklch(83.57% 0.0054 274.96)",
+          "oklch(95.00% 0.0054 274.96)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark muted",
+        "tonalRamp": [
+          "oklch(15.00% 0.0193 269.04)",
+          "oklch(26.43% 0.0193 269.04)",
+          "oklch(37.86% 0.0193 269.04)",
+          "oklch(49.29% 0.0193 269.04)",
+          "oklch(60.71% 0.0193 269.04)",
+          "oklch(72.14% 0.0193 269.04)",
+          "oklch(83.57% 0.0193 269.04)",
+          "oklch(95.00% 0.0193 269.04)"
+        ]
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "Dark line",
+        "tonalRamp": [
+          "oklch(15.00% 0.0219 267.42)",
+          "oklch(26.43% 0.0219 267.42)",
+          "oklch(37.86% 0.0219 267.42)",
+          "oklch(49.29% 0.0219 267.42)",
+          "oklch(60.71% 0.0219 267.42)",
+          "oklch(72.14% 0.0219 267.42)",
+          "oklch(83.57% 0.0219 267.42)",
+          "oklch(95.00% 0.0219 267.42)"
+        ]
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Dark accent",
+        "tonalRamp": [
+          "oklch(15.00% 0.1224 282.09)",
+          "oklch(26.43% 0.1224 282.09)",
+          "oklch(37.86% 0.1224 282.09)",
+          "oklch(49.29% 0.1224 282.09)",
+          "oklch(60.71% 0.1224 282.09)",
+          "oklch(72.14% 0.1224 282.09)",
+          "oklch(83.57% 0.1224 282.09)",
+          "oklch(95.00% 0.1224 282.09)"
+        ]
+      },
+      "dark-accent-ink": {
+        "role": "primary",
+        "displayName": "Dark accent ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.0693 279.52)",
+          "oklch(26.43% 0.0693 279.52)",
+          "oklch(37.86% 0.0693 279.52)",
+          "oklch(49.29% 0.0693 279.52)",
+          "oklch(60.71% 0.0693 279.52)",
+          "oklch(72.14% 0.0693 279.52)",
+          "oklch(83.57% 0.0693 279.52)",
+          "oklch(95.00% 0.0693 279.52)"
+        ]
+      },
+      "dark-tint": {
+        "role": "primary",
+        "displayName": "Dark tint",
+        "tonalRamp": [
+          "oklch(15.00% 0.0446 280.02)",
+          "oklch(26.43% 0.0446 280.02)",
+          "oklch(37.86% 0.0446 280.02)",
+          "oklch(49.29% 0.0446 280.02)",
+          "oklch(60.71% 0.0446 280.02)",
+          "oklch(72.14% 0.0446 280.02)",
+          "oklch(83.57% 0.0446 280.02)",
+          "oklch(95.00% 0.0446 280.02)"
+        ]
+      },
+      "dark-hover": {
+        "role": "neutral",
+        "displayName": "Dark hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.0186 268.11)",
+          "oklch(26.43% 0.0186 268.11)",
+          "oklch(37.86% 0.0186 268.11)",
+          "oklch(49.29% 0.0186 268.11)",
+          "oklch(60.71% 0.0186 268.11)",
+          "oklch(72.14% 0.0186 268.11)",
+          "oklch(83.57% 0.0186 268.11)",
+          "oklch(95.00% 0.0186 268.11)"
+        ]
+      },
+      "dark-warning": {
+        "displayName": "Dark warning",
+        "tonalRamp": [
+          "oklch(15.00% 0.0278 82.84)",
+          "oklch(26.43% 0.0278 82.84)",
+          "oklch(37.86% 0.0278 82.84)",
+          "oklch(49.29% 0.0278 82.84)",
+          "oklch(60.71% 0.0278 82.84)",
+          "oklch(72.14% 0.0278 82.84)",
+          "oklch(83.57% 0.0278 82.84)",
+          "oklch(95.00% 0.0278 82.84)"
+        ]
+      },
+      "dark-warning-ink": {
+        "displayName": "Dark warning ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.1097 85.30)",
+          "oklch(26.43% 0.1097 85.30)",
+          "oklch(37.86% 0.1097 85.30)",
+          "oklch(49.29% 0.1097 85.30)",
+          "oklch(60.71% 0.1097 85.30)",
+          "oklch(72.14% 0.1097 85.30)",
+          "oklch(83.57% 0.1097 85.30)",
+          "oklch(95.00% 0.1097 85.30)"
+        ]
+      },
+      "dark-danger": {
+        "displayName": "Dark danger",
+        "tonalRamp": [
+          "oklch(15.00% 0.0934 23.29)",
+          "oklch(26.43% 0.0934 23.29)",
+          "oklch(37.86% 0.0934 23.29)",
+          "oklch(49.29% 0.0934 23.29)",
+          "oklch(60.71% 0.0934 23.29)",
+          "oklch(72.14% 0.0934 23.29)",
+          "oklch(83.57% 0.0934 23.29)",
+          "oklch(95.00% 0.0934 23.29)"
+        ]
+      },
+      "dark-danger-tint": {
+        "displayName": "Dark danger tint",
+        "tonalRamp": [
+          "oklch(15.00% 0.0259 10.97)",
+          "oklch(26.43% 0.0259 10.97)",
+          "oklch(37.86% 0.0259 10.97)",
+          "oklch(49.29% 0.0259 10.97)",
+          "oklch(60.71% 0.0259 10.97)",
+          "oklch(72.14% 0.0259 10.97)",
+          "oklch(83.57% 0.0259 10.97)",
+          "oklch(95.00% 0.0259 10.97)"
+        ]
+      },
+      "dark-success": {
+        "displayName": "Dark success",
+        "tonalRamp": [
+          "oklch(15.00% 0.0837 169.19)",
+          "oklch(26.43% 0.0837 169.19)",
+          "oklch(37.86% 0.0837 169.19)",
+          "oklch(49.29% 0.0837 169.19)",
+          "oklch(60.71% 0.0837 169.19)",
+          "oklch(72.14% 0.0837 169.19)",
+          "oklch(83.57% 0.0837 169.19)",
+          "oklch(95.00% 0.0837 169.19)"
+        ]
+      },
+      "dark-focus": {
+        "role": "primary",
+        "displayName": "Dark focus",
+        "tonalRamp": [
+          "oklch(15.00% 0.1224 282.09)",
+          "oklch(26.43% 0.1224 282.09)",
+          "oklch(37.86% 0.1224 282.09)",
+          "oklch(49.29% 0.1224 282.09)",
+          "oklch(60.71% 0.1224 282.09)",
+          "oklch(72.14% 0.1224 282.09)",
+          "oklch(83.57% 0.1224 282.09)",
+          "oklch(95.00% 0.1224 282.09)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Page heading",
+        "purpose": "The current setup task or operation."
+      },
+      "headline-compact": {
+        "displayName": "Compact page heading",
+        "purpose": "Page heading at the implemented max-width: 960px breakpoint."
+      },
+      "title": {
+        "displayName": "Group heading",
+        "purpose": "Grouped choices and destination lists."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Ordinary text and concise introductory copy."
+      },
+      "label": {
+        "displayName": "Field label",
+        "purpose": "Explicit labels for folder and temp inputs."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Action text using Inter's actual weight 550."
+      },
+      "path": {
+        "displayName": "Folder path",
+        "purpose": "Readable selectable full paths with wrapping."
+      }
+    },
+    "shadows": [
+      {
+        "name": "toast",
+        "value": "0 6px 24px #0003",
+        "purpose": "Transient toast feedback only; ordinary surfaces are flat."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-background",
+        "value": "background-color .12s ease-out",
+        "purpose": "Buttons and the appearance select."
+      },
+      {
+        "name": "progress-fill",
+        "value": "width .25s ease-out",
+        "purpose": "Measured backend percentage updates."
+      },
+      {
+        "name": "page-enter",
+        "value": ".18s cubic-bezier(.16,1,.3,1)",
+        "purpose": "Page entry settles from translateY(5px) to translateY(0), without an opacity fade."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation:none!important;transition:none!important",
+        "purpose": "Applied to all elements and pseudo-elements when prefers-reduced-motion is reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "960px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The current forward action; colors inherit the active light or dark CSS variables.",
+      "html": "<button class=\"ds-btn-primary\">Continue <svg class=\"ds-primary-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 12h16m-6-6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-btn-primary{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:550;border:1px solid transparent;border-radius:8px;background:var(--accent, #5357d8);color:var(--accent-ink, #fff);min-height:40px;padding:9px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background-color .12s ease-out}.ds-btn-primary:hover:not(:disabled){background:var(--accent, #5357d8);filter:brightness(1.07);}.ds-btn-primary:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-btn-primary:disabled{cursor:default;opacity:.45}@media(prefers-reduced-motion:reduce){.ds-btn-primary{transition:none}}.ds-primary-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}"
+    },
+    {
+      "name": "Outlined button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Browse, Back, Change and Open actions with a thin border.",
+      "html": "<button class=\"ds-btn-secondary\">Browse…</button>",
+      "css": ".ds-btn-secondary{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:550;border:1px solid var(--line, #dce0e7);border-radius:8px;background:var(--surface, #fff);color:var(--text, #20232b);min-height:40px;padding:9px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background-color .12s ease-out}.ds-btn-secondary:hover:not(:disabled){background:var(--hover, #edeff4);}.ds-btn-secondary:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-btn-secondary:disabled{cursor:default;opacity:.45}@media(prefers-reduced-motion:reduce){.ds-btn-secondary{transition:none}}"
+    },
+    {
+      "name": "Quiet button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Supporting actions use the same geometry with no resting fill or visible border.",
+      "html": "<button class=\"ds-btn-quiet\">Open details</button>",
+      "css": ".ds-btn-quiet{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:550;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text, #20232b);min-height:40px;padding:9px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background-color .12s ease-out}.ds-btn-quiet:hover:not(:disabled){background:var(--hover, #edeff4);}.ds-btn-quiet:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-btn-quiet:disabled{cursor:default;opacity:.45}@media(prefers-reduced-motion:reduce){.ds-btn-quiet{transition:none}}"
+    },
+    {
+      "name": "Destructive button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Permanent removal on the separate optional-cleanup screen; the app gates activation.",
+      "html": "<button class=\"ds-btn-danger\">Delete old copies permanently</button>",
+      "css": ".ds-btn-danger{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:550;border:1px solid var(--danger, #ad3333);border-radius:8px;background:var(--danger-tint, #fff0ef);color:var(--danger, #ad3333);min-height:40px;padding:9px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background-color .12s ease-out}.ds-btn-danger:hover:not(:disabled){background:var(--hover, #edeff4);}.ds-btn-danger:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-btn-danger:disabled{cursor:default;opacity:.45}@media(prefers-reduced-motion:reduce){.ds-btn-danger{transition:none}}"
+    },
+    {
+      "name": "Folder field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "An explicit editable path and native Browse action. In setup, typing the storage or projects folder refreshes destination rows immediately while preserving individually chosen overrides.",
+      "html": "<div class=\"ds-folder-field\"><label for=\"ds-storage-path\">Storage folder</label><div class=\"ds-field-control\"><input id=\"ds-storage-path\" type=\"text\" value=\"E:\\AI\" autocomplete=\"off\" spellcheck=\"false\"><button class=\"ds-browse\">Browse…</button></div></div>",
+      "css": ".ds-folder-field{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;color:var(--text, #20232b)}.ds-folder-field label{display:block;font-size:13px;font-weight:600;margin-bottom:9px}.ds-field-control{display:flex;gap:8px;align-items:center}.ds-field-control input{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:400;border:1px solid var(--line, #dce0e7);background:var(--surface, #fff);color:var(--text, #20232b);border-radius:8px;padding:10px 12px;min-height:42px;width:100%;flex:1;min-width:0;caret-color:var(--accent, #5357d8)}.ds-field-control input::placeholder{color:var(--muted, #606575)}.ds-field-control .ds-browse{flex-shrink:0}.ds-field-control input:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-browse{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:550;border:1px solid var(--line, #dce0e7);border-radius:8px;background:var(--surface, #fff);color:var(--text, #20232b);min-height:40px;padding:9px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background-color .12s ease-out}.ds-browse:hover:not(:disabled){background:var(--hover, #edeff4);}.ds-browse:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-browse:disabled{cursor:default;opacity:.45}@media(prefers-reduced-motion:reduce){.ds-browse{transition:none}}"
+    },
+    {
+      "name": "Setup navigation",
+      "kind": "nav",
+      "refersTo": "step-current",
+      "description": "Persistent numbered steps with completed, current and disabled states.",
+      "html": "<nav class=\"ds-step-nav\" aria-label=\"Setup steps\"><button class=\"ds-step ds-done\"><span class=\"ds-number\"><svg class=\"ds-step-check\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span>Projects</button><button class=\"ds-step\" aria-current=\"step\"><span class=\"ds-number\">2</span>Destination</button><button class=\"ds-step\" disabled><span class=\"ds-number\">3</span>Data &amp; temp</button><button class=\"ds-step\" disabled><span class=\"ds-number\">4</span>Review</button></nav>",
+      "css": ".ds-step-nav{display:grid;gap:7px;background:var(--canvas, #f7f8fa)}.ds-step{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-size:13px;font-weight:550;display:inline-flex;align-items:center;justify-content:flex-start;gap:12px;border:0;border-radius:8px;background:transparent;padding:11px 12px;color:var(--muted, #606575);min-height:48px;cursor:pointer;transition:background-color .12s ease-out}.ds-step:hover:not(:disabled){background:var(--hover, #edeff4)}.ds-step[aria-current=step]{background:var(--tint, #eeefff);color:var(--accent, #5357d8)}.ds-step[aria-current=step]:hover{background:var(--hover, #edeff4)}.ds-step .ds-number{width:25px;height:25px;border:1px solid var(--line, #dce0e7);display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px;font-variant-numeric:tabular-nums}.ds-step[aria-current=step] .ds-number{background:var(--accent, #5357d8);color:var(--accent-ink, #fff);border-color:transparent}.ds-step.ds-done .ds-number{color:var(--success, #23775c)}.ds-step:disabled{cursor:default;opacity:.45}.ds-step:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-step-check{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}@media(prefers-reduced-motion:reduce){.ds-step{transition:none}}"
+    },
+    {
+      "name": "Folder list",
+      "kind": "card",
+      "refersTo": "folder-list",
+      "description": "Flat outlined rows emphasize a short folder name and the full selectable path.",
+      "html": "<div class=\"ds-folder-list\"><div class=\"ds-folder-row\"><svg class=\"ds-folder-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 6h6l2 3h10v11H3Z\"/></svg><div class=\"ds-row-main\"><div class=\"ds-row-title\">Atlas</div><div class=\"ds-path\">C:\\Projects\\Atlas</div></div><button class=\"ds-remove\" aria-label=\"Remove Atlas\"><svg class=\"ds-remove-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m6 6 12 12M6 18 18 6\"/></svg></button></div><div class=\"ds-folder-row\"><svg class=\"ds-folder-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 6h6l2 3h10v11H3Z\"/></svg><div class=\"ds-row-main\"><div class=\"ds-row-title\">Agent Lab</div><div class=\"ds-path\">C:\\Projects\\Agent Lab</div></div><button class=\"ds-remove\" aria-label=\"Remove Agent Lab\"><svg class=\"ds-remove-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m6 6 12 12M6 18 18 6\"/></svg></button></div></div>",
+      "css": ".ds-folder-list{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;color:var(--text, #20232b);border:1px solid var(--line, #dce0e7);border-radius:14px;overflow:hidden;background:var(--surface, #fff)}.ds-folder-row{padding:17px 18px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--line, #dce0e7)}.ds-folder-row:last-child{border-bottom:0}.ds-row-main{flex:1;min-width:0}.ds-row-title{font-size:14px;font-weight:600;margin:0 0 3px}.ds-path{font-size:12px;color:var(--muted, #606575);overflow-wrap:anywhere;line-height:1.55;user-select:text}.ds-folder-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.ds-folder-icon{color:var(--muted, #606575)}.ds-remove-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.ds-remove{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;font-weight:550;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text, #20232b);min-height:40px;padding:9px 15px;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:background-color .12s ease-out}.ds-remove:hover:not(:disabled){background:var(--hover, #edeff4);}.ds-remove:focus-visible{outline:2px solid var(--focus, #5357d8);outline-offset:3px}.ds-remove:disabled{cursor:default;opacity:.45}@media(prefers-reduced-motion:reduce){.ds-remove{transition:none}}.ds-remove{padding:8px;width:40px;flex-shrink:0}@media(max-width:960px){.ds-folder-row{padding:15px 14px}.ds-folder-row .ds-remove{font-size:12px;padding:8px 10px}}"
+    },
+    {
+      "name": "Warning notice",
+      "kind": "custom",
+      "refersTo": "notice-warning",
+      "description": "Useful caution with a short bold lead and a quieter supporting sentence.",
+      "html": "<div class=\"ds-warning-notice\"><svg class=\"ds-warning-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m12 3 10 18H2Zm0 6v5m0 3v.1\"/></svg><div><strong>Make a separate manual backup before starting.</strong>Use this tool at your own risk. File corruption or a target-drive failure can cause data loss.</div></div>",
+      "css": ".ds-warning-notice{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;display:flex;gap:11px;background:var(--warning, #fff7e7);color:var(--warning-ink, #805600);padding:15px 16px;border-radius:10px;font-size:12px;line-height:1.55;margin:22px 0}.ds-warning-notice strong{display:block;font-weight:650;margin-bottom:3px}.ds-warning-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.ds-warning-icon{margin-top:2px}"
+    },
+    {
+      "name": "Cleanup danger notice",
+      "kind": "custom",
+      "refersTo": "notice-danger",
+      "description": "The irreversible-removal notice on the separate optional-cleanup screen.",
+      "html": "<div class=\"ds-danger-notice\"><svg class=\"ds-danger-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m12 3 10 18H2Zm0 6v5m0 3v.1\"/></svg><div><strong>No undo. No Recycle Bin.</strong>These originals will be unrecoverable from the old drive. Keep a separate manual backup.</div></div>",
+      "css": ".ds-danger-notice{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;display:flex;gap:11px;background:var(--danger-tint, #fff0ef);color:var(--danger, #ad3333);padding:15px 16px;border-radius:10px;font-size:13px;line-height:1.55;margin:22px 0}.ds-danger-notice strong{display:block;font-weight:650;margin-bottom:3px}.ds-danger-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.ds-danger-icon{margin-top:2px}"
+    },
+    {
+      "name": "Measured progress",
+      "kind": "custom",
+      "refersTo": "progress-track",
+      "description": "Synthetic example of the real track, operation label, counts and elapsed time; runtime values come from backend snapshots.",
+      "html": "<div class=\"ds-progress-area\"><div class=\"ds-progress-heading\"><strong>Copying and checking files</strong><span>42%</span></div><div class=\"ds-progress-track\" role=\"progressbar\" aria-valuemin=\"0\" aria-valuemax=\"100\" aria-valuenow=\"42\" aria-label=\"Migration progress\"><div class=\"ds-progress-fill\" style=\"width:42%\"></div></div><div class=\"ds-progress-meta\"><span>420 / 1,000 entries</span><span>Elapsed 00:35</span></div><p class=\"ds-live-detail\">Synthetic preview: copying selected folders…</p></div>",
+      "css": ".ds-progress-area{font-family:Inter,sans-serif;font-size:14px;line-height:1.5;color:var(--text, #20232b);padding:32px 0 20px}.ds-progress-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:13px}.ds-progress-heading strong{font-size:17px;font-weight:600}.ds-progress-heading span{font-variant-numeric:tabular-nums;color:var(--accent, #5357d8);font-weight:650}.ds-progress-track{height:8px;background:var(--line, #dce0e7);border-radius:8px;overflow:hidden}.ds-progress-fill{height:100%;background:var(--accent, #5357d8);border-radius:8px;transition:width .25s ease-out}.ds-progress-meta{display:flex;justify-content:space-between;gap:16px;font-size:12px;color:var(--muted, #606575);margin-top:13px;font-variant-numeric:tabular-nums}.ds-live-detail{font-size:13px;overflow-wrap:anywhere;margin:22px 0 16px;color:var(--muted, #606575)}@media(prefers-reduced-motion:reduce){.ds-progress-fill{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A quiet, modern desktop workspace",
+    "overview": "A quiet, modern desktop workspace for a consequential file operation. Folder paths are the primary content; concise typography, lightly outlined lists and a restrained violet accent keep selection, review and progress easy to scan. The confirmed direction replaces the rejected Windows-2000-style Tk interface with a modern interactive desktop surface.\n\nThe system follows Windows appearance by default and offers explicit light and dark choices within the current window. Both themes keep the same hierarchy and component geometry. Original copies, progress and optional cleanup remain visibly distinct, with caution expressed through clear text and semantic color. Copy names the current decision and explains actual work; idle status badges and repeated reassurance are omitted.",
+    "keyCharacteristics": [
+      "Folder paths and useful actions lead the interface.",
+      "Persistent setup navigation and footer actions provide orientation.",
+      "Direct task labels and status only while useful.",
+      "Flat surfaces, thin borders and restrained semantic color.",
+      "Locally bundled typography, visible keyboard focus and reduced-motion support."
+    ],
+    "rules": [
+      {
+        "name": "Appearance",
+        "body": "Follow Windows by default; keep Light and Dark available without changing the layout or the meaning of status colors.",
+        "section": "colors"
+      },
+      {
+        "name": "Useful Copy",
+        "body": "Name the current decision directly. Show paths, actual work and consequential warnings; omit idle status badges, redundant header labels, repeated empty-state instructions, technical reassurance strips and repeated reassurance.",
+        "section": "typography"
+      },
+      {
+        "name": "Flat Workspace",
+        "body": "Use tonal surfaces and thin borders for ordinary containers. Reserve the existing shadow for transient toast feedback.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the locally bundled Inter variable font and the extracted heading weights.",
+      "Do use the paired light and dark semantic tokens and keep Follow Windows as the default appearance.",
+      "Do name decisions directly and show status only when it explains actual work.",
+      "Do wrap and allow selection of full folder paths, while keeping explicit browse, change, remove and open controls.",
+      "Do keep progress tied to backend measurements and show the current operation, counts and elapsed time.",
+      "Do keep optional cleanup separate, with a danger notice, exact phrase and checked-project acknowledgment.",
+      "Do preserve visible keyboard focus and disable transitions and animation for reduced motion."
+    ],
+    "donts": [
+      "Don't return to stock Tk controls or the rejected Windows-2000-style visual treatment.",
+      "Don't add terminal commands to ordinary setup.",
+      "Don't show idle status badges, redundant header labels, repeated empty-state instructions or technical reassurance strips.",
+      "Don't repeat reassurance in the sidebar and footer.",
+      "Don't add decorative charts, remote fonts or ornamental shadows to the workspace.",
+      "Don't imply that displayed screenshot or component-preview progress proves a completed migration."
+    ]
+  }
+}

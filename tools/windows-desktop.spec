@@ -4,6 +4,7 @@ from pathlib import Path
 root = Path(SPECPATH).parent
 data = [(str(root / 'src' / 'ai_storage_mover' / name), 'ai_storage_mover')
         for name in ('Setup-Storage.ps1', 'Activate-Package.ps1', 'repair_claude_browser_state.cjs', 'dashboard.html')]
+data.append((str(root / 'src' / 'ai_storage_mover' / 'desktop'), 'ai_storage_mover/desktop'))
 gui = Analysis([str(root / 'tools' / 'desktop_entry.pyw')], pathex=[str(root / 'src')], datas=data)
 worker = Analysis([str(root / 'tools' / 'worker_entry.py')], pathex=[str(root / 'src')], datas=data)
 gui_exe = EXE(PYZ(gui.pure), gui.scripts, exclude_binaries=True, name='AI Storage Mover', console=False, upx=False)

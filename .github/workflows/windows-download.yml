@@ -13,11 +13,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - run: python -m pip install "pyinstaller>=6.16,<7"
+      - run: python -m pip install "pyinstaller>=6.16,<7" "pywebview>=6.2,<7"
       - run: python -m unittest discover -s tests -v
         env:
           PYTHONPATH: src
       - run: python -m PyInstaller --noconfirm tools/windows-desktop.spec
+      - name: Verify desktop review and keyboard flow
+        run: python tools/test_desktop_flow.py
+        env:
+          PYTHONPATH: src
       - name: Verify bundled worker
         shell: powershell
         run: |
@@ -25,8 +29,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bundled worker failed' }
           python tools/test_desktop_bundle.py
           if ($LASTEXITCODE -ne 0) { throw 'Bundled desktop fixtures failed' }
-          Copy-Item LICENSE 'dist\AI Storage Mover\LICENSE.txt'
-          Copy-Item README.md 'dist\AI Storage Mover\README.md'
+          python tools/bundle_licenses.py
+          if ($LASTEXITCODE -ne 0) { throw 'Bundle notices failed' }
       - uses: actions/upload-artifact@v4
         with:
           name: ai-storage-mover-windows-x64

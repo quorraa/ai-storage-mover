@@ -20,6 +20,8 @@ Review the plan before applying it. To select other data or a portable tool dire
 
 For development without installation, set `PYTHONPATH` to the repository's `src` directory and use `python -m ai_storage_mover` instead of `ai-storage-mover`.
 
+To develop the desktop interface from source, install the `desktop` extra (`python -m pip install -e ".[desktop]"`) and launch `ai-storage-mover-gui`. The Windows download already includes these dependencies. Its offline interface uses WebView2; it does not require a local web server.
+
 ## Windows setup
 
 After reviewing the plan, quit the AI apps and any terminals writing to the selected folders. Keep the setup terminal outside those source folders. Open `dashboard` in another terminal, then run:

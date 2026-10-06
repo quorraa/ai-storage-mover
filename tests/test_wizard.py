@@ -147,6 +147,36 @@ class WizardTests(unittest.TestCase):
         self.assertEqual(next(h['source'] for h in hits if h['label'] == 'npm cache'), str(npm))
         self.assertEqual(next(h['source'] for h in hits if h['label'] == 'pip cache'), str(pip))
 
+    def test_desktop_profile_override_requires_selected_or_existing_destination(self):
+        profile = self.base / 'desktop-profile'
+        profile.mkdir()
+        item = dict(source=str(profile), slot='Profiles/codex-desktop', category='profile', provider='codex-desktop')
+        with patch.dict(os.environ, {'CODEX_ELECTRON_USER_DATA_PATH': str(profile)}):
+            self.assertNotIn('CODEX_ELECTRON_USER_DATA_PATH', self.session()['runtime']['environment'])
+            selected = create_session([self.source], self.base / 'storage', [item], reserve_bytes=0)
+        self.assertEqual(selected['runtime']['environment']['CODEX_ELECTRON_USER_DATA_PATH'],
+                         str(self.base / 'storage' / 'Profiles' / 'codex-desktop'))
+        missing = self.base / 'storage' / 'missing-desktop'
+        with patch.dict(os.environ, {'CODEX_ELECTRON_USER_DATA_PATH': str(missing)}):
+            self.assertNotIn('CODEX_ELECTRON_USER_DATA_PATH', self.session()['runtime']['environment'])
+        missing.mkdir(parents=True)
+        with patch.dict(os.environ, {'CODEX_ELECTRON_USER_DATA_PATH': str(missing)}):
+            self.assertEqual(self.session()['runtime']['environment']['CODEX_ELECTRON_USER_DATA_PATH'], str(missing))
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows packaged-profile virtualization')
+    def test_packaged_desktop_does_not_select_stale_roaming_profile(self):
+        home = self.base / 'home'
+        stale = home / 'AppData' / 'Roaming' / 'Codex'
+        stale.mkdir(parents=True)
+        (home / 'AppData' / 'Local' / 'Packages' / 'OpenAI.Codex_fixture').mkdir(parents=True)
+        self.assertNotIn(str(stale), [h['source'] for h in candidates(home, {})])
+        actual = self.base / 'actual-desktop'
+        actual.mkdir()
+        hits = candidates(home, {'codex_electron_user_data_path': str(actual)})
+        desktop = next(h for h in hits if h.get('provider') == 'codex-desktop')
+        self.assertEqual(desktop['source'], str(actual))
+        self.assertNotIn(str(stale), [h['source'] for h in hits])
+
     def test_scan_is_bounded_and_does_not_descend_dependency_trees(self):
         (self.source / 'pyproject.toml').write_text('[project]')
         nested = self.source / 'node_modules' / 'another-project'
@@ -199,39 +229,39 @@ class WizardTests(unittest.TestCase):
         self.assertTrue(args[args.index('-PythonPath') + 1].endswith('ai-storage-worker.exe'))
 
 
-@unittest.skipUnless(os.name == 'nt' or os.environ.get('DISPLAY'), 'Desktop display required')
 class DesktopTests(unittest.TestCase):
-    def test_wizard_navigation_and_exact_cleanup_gate(self):
-        import tkinter as tk
-        from ai_storage_mover.gui import Wizard
-        root = tk.Tk()
-        root.withdraw()
-        try:
-            app = Wizard(root)
-            app.next()
-            self.assertEqual(app.page, 0)
-            self.assertIn('Select', app.error.get())
-            app.projects = [str(Path(__file__).resolve().parent)]
-            app.show(1)
-            app.next()
-            self.assertEqual(app.page, 1)
-            self.assertTrue(app.destination_list.winfo_exists())
-            self.assertEqual(len(app.destination_list.get_children()), 1)
-            app.set_storage(Path(__file__).resolve().parents[1] / '.runs' / 'preview-storage')
-            self.assertIn('Projects', app.destination_list.item('0', 'values')[1])
-            app.session = create_session(app.projects, Path(__file__).resolve().parents[1] / '.runs' / 'preview-storage')
-            app.session['status'] = 'complete'
-            app.cleanup_screen()
-            self.assertEqual(str(app.delete_button['state']), 'disabled')
-            app.phrase.set(CLEANUP_PHRASE + 'x')
-            app.tested.set(True)
-            app.enable_cleanup()
-            self.assertEqual(str(app.delete_button['state']), 'disabled')
-            app.phrase.set(CLEANUP_PHRASE)
-            app.enable_cleanup()
-            self.assertEqual(str(app.delete_button['state']), 'normal')
-        finally:
-            root.destroy()
+    def test_bridge_enforces_review_apps_closed_and_exact_cleanup_gate(self):
+        from ai_storage_mover.gui import SetupAPI
+        api = SetupAPI()
+        with self.assertRaises(MigrationError):
+            api.review({'projects': [], 'storage': 'unused'})
+        with self.assertRaises(MigrationError):
+            api.start_migration(True)
+        api._session = {'status': 'complete'}
+        with self.assertRaises(MigrationError):
+            api.start_migration(False)
+        for phrase, tested in ((CLEANUP_PHRASE + 'x', True), (CLEANUP_PHRASE, False)):
+            with self.assertRaises(MigrationError):
+                api.start_cleanup(phrase, tested)
+        with patch.object(api, '_task', return_value={'started': True}) as task:
+            self.assertEqual(api.start_cleanup(CLEANUP_PHRASE, True), {'started': True})
+            task.assert_called_once()
+
+    def test_bridge_cannot_open_unreviewed_paths_and_native_window_is_private(self):
+        from ai_storage_mover.gui import SetupAPI
+        api = SetupAPI()
+        self.assertFalse(hasattr(api, 'window'))
+        with self.assertRaises(MigrationError):
+            api.open_location('arbitrary-executable')
+
+    def test_desktop_assets_are_offline_and_theme_controls_are_present(self):
+        from ai_storage_mover.gui import document
+        html = document()
+        self.assertIn('data:font/woff2;base64,', html)
+        self.assertIn('Follow Windows', html)
+        self.assertIn('connect-src \'none\'', html)
+        self.assertNotIn('/* INLINE_SCRIPT */', html)
+        self.assertNotIn('/* INLINE_STYLE */', html)
 
 
 if __name__ == '__main__':

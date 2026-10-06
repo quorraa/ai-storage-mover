@@ -59,7 +59,8 @@ def create_session(projects, storage, items=(), *, tools_temp=None, claude_temp=
             if protected(path) or path == Path(path.anchor):
                 raise MigrationError('Choose a dedicated temp folder outside Windows and app packages')
             runtime['environment'][key] = str(path)
-    for provider, variable in (('codex', 'CODEX_HOME'), ('claude', 'CLAUDE_CONFIG_DIR')):
+    for provider, variable in (('codex', 'CODEX_HOME'), ('claude', 'CLAUDE_CONFIG_DIR'),
+                               ('codex-desktop', 'CODEX_ELECTRON_USER_DATA_PATH')):
         entry = next((r for r in plan['roots'] if r.get('provider') == provider or
                       (r['category'] == 'profile' and Path(r['source']).name == '.' + provider)), None)
         if entry:
@@ -71,7 +72,7 @@ def create_session(projects, storage, items=(), *, tools_temp=None, claude_temp=
                 runtime['environment'][variable] = mapped
                 continue
             current = os.environ.get(variable)
-            if current and inside(Path(current).resolve(), storage):
+            if current and Path(current).is_dir() and inside(Path(current).resolve(), storage):
                 runtime['environment'][variable] = str(Path(current).resolve())
             else:
                 runtime['environment'].pop(variable, None)
