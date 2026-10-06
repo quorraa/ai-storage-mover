@@ -6,6 +6,29 @@ Move an existing AI and development setup when projects, caches and build files 
 
 **Use at your own risk. Make a separate manual backup before doing anything.** Files can become corrupted and the target drive can fail. Verification and retained originals reduce risk; they do not replace an independent backup or guarantee against data loss. See the [MIT license](LICENSE).
 
+## Screenshots
+
+Fictional projects, paths and storage figures. Progress is illustrative.
+
+![Choose projects in light mode](docs/screenshots/projects-light.png)
+
+![Profiles, caches and future temp folders in dark mode](docs/screenshots/data-dark.png)
+
+<details>
+<summary>Destination, review, transfer and cleanup</summary>
+
+![Choose destination in a compact window](docs/screenshots/destination-dark.png)
+
+![Review the paths before transferring](docs/screenshots/review-light.png)
+
+![Illustrative transfer progress](docs/screenshots/progress-dark.png)
+
+![Completed setup with originals retained](docs/screenshots/complete-light.png)
+
+![Optional cleanup with a typed confirmation](docs/screenshots/cleanup-dark.png)
+
+</details>
+
 ## Start
 
 1. Download the **Windows x64 ZIP** from [Releases](https://github.com/quorraa/ai-storage-mover/releases/latest).
