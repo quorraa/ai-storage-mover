@@ -90,6 +90,8 @@ def configure(plan, runtime, *, codex=None, claude=None, desktops=(), projects=N
         # Preserve legacy global preferences when CLAUDE_CONFIG_DIR is introduced.
         global_settings = base / '.claude.json'
         legacy = next((Path(r['destination']) for r in plan['roots'] if Path(r['source']).name == '.claude.json'), None)
+        if not legacy:
+            legacy = Path.home() / '.claude.json'
         if legacy and legacy.is_file() and not global_settings.exists():
             write(global_settings, legacy.read_bytes())
         config = base / 'settings.json'

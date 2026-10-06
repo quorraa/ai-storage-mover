@@ -1,0 +1,33 @@
+name: Windows desktop download
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install "pyinstaller>=6.16,<7"
+      - run: python -m unittest discover -s tests -v
+        env:
+          PYTHONPATH: src
+      - run: python -m PyInstaller --noconfirm tools/windows-desktop.spec
+      - name: Verify bundled worker
+        shell: powershell
+        run: |
+          & '.\dist\AI Storage Mover\ai-storage-worker.exe' --help
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled worker failed' }
+          python tools/test_desktop_bundle.py
+          if ($LASTEXITCODE -ne 0) { throw 'Bundled desktop fixtures failed' }
+          Copy-Item LICENSE 'dist\AI Storage Mover\LICENSE.txt'
+          Copy-Item README.md 'dist\AI Storage Mover\README.md'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-storage-mover-windows-x64
+          path: dist/AI Storage Mover/

@@ -12,6 +12,9 @@ class MigrationError(RuntimeError):
     pass
 
 
+CLEANUP_PHRASE = 'I UNDERSTAND MY OLD PROJECTS WILL BE DELETED AND UNRECOVERABLE'
+
+
 def linked(path):
     if not os.path.lexists(path):
         return False
@@ -65,6 +68,8 @@ def validate(plan):
         raise MigrationError("Unknown plan schema or invalid run ID")
     if plan.get("verification") not in ("hash", "metadata"):
         raise MigrationError("Choose hash or metadata verification")
+    if plan.get('transfer', 'auto') not in ('auto', 'native', 'portable'):
+        raise MigrationError('Unknown transfer method')
     if not 1 <= plan.get("workers", 0) <= 16 or plan.get("reserve_bytes", -1) < 0:
         raise MigrationError("Invalid workers or free-space reserve")
     if not plan.get("roots"):

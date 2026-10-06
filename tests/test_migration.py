@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from ai_storage_mover.engine import Engine, link_root, run_lock
-from ai_storage_mover.model import MigrationError, atomic_json, make_plan, protected, validate
+from ai_storage_mover.model import CLEANUP_PHRASE, MigrationError, atomic_json, make_plan, protected, validate
 from ai_storage_mover.references import map_path, repoint_codex, repoint_files, repoint_claude, codex_ui_paths
 from ai_storage_mover.runtime import launch, settings
 
@@ -46,7 +46,7 @@ class Fixture(unittest.TestCase):
         with self.engine() as engine:
             self.assertEqual((self.target / 'hello.txt').read_text(), 'original')
             self.assertTrue(engine.backup(self.plan['roots'][0]).exists())
-            engine.retire(self.plan['id'])
+            engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
             self.assertFalse(engine.backup(self.plan['roots'][0]).exists())
             self.assertEqual((self.source / 'hello.txt').read_text(), 'original')
             status = json.loads((engine.run / 'status.json').read_text())
@@ -148,7 +148,7 @@ class Fixture(unittest.TestCase):
             backup = engine.backup(self.plan['roots'][0])
             (backup / 'new-important.txt').write_text('keep me')
             with self.assertRaises(MigrationError):
-                engine.retire(self.plan['id'])
+                engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
             self.assertEqual((backup / 'hello.txt').read_text(), 'original')
             self.assertTrue((backup / 'new-important.txt').exists())
 
@@ -158,7 +158,7 @@ class Fixture(unittest.TestCase):
             backup = engine.backup(self.plan['roots'][0])
             (backup / 'hello.txt').write_text('unverified changes')
             with self.assertRaises(MigrationError):
-                engine.retire(self.plan['id'])
+                engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
             self.assertTrue(backup.exists())
 
     def test_missing_destination_entry_blocks_retirement(self):
@@ -166,7 +166,7 @@ class Fixture(unittest.TestCase):
         (self.target / 'hello.txt').unlink()
         with self.engine() as engine:
             with self.assertRaises(MigrationError):
-                engine.retire(self.plan['id'])
+                engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
             self.assertTrue(engine.backup(self.plan['roots'][0]).exists())
 
     def test_interrupted_retirement_resumes(self):
@@ -184,10 +184,10 @@ class Fixture(unittest.TestCase):
 
         with self.engine() as engine:
             with patch('ai_storage_mover.engine.os.unlink', side_effect=interrupt), self.assertRaises(OSError):
-                engine.retire(self.plan['id'])
+                engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
             engine.fail(RuntimeError('simulated interruption'))
         with self.engine() as engine:
-            engine.retire(self.plan['id'])
+            engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
             self.assertTrue(engine.state['retired'])
             self.assertEqual((self.target / 'hello.txt').read_text(), 'original')
 
@@ -198,14 +198,14 @@ class Fixture(unittest.TestCase):
         link_root(self.source / 'external-link', external)
         self.apply()
         with self.engine() as engine:
-            engine.retire(self.plan['id'])
+            engine.retire(self.plan['id'], acknowledgment=CLEANUP_PHRASE)
         self.assertEqual((external / 'keep.txt').read_text(), 'outside selected root')
 
     def test_wrong_confirmation_id_refuses_cleanup(self):
         self.apply()
         with self.engine() as engine:
             with self.assertRaises(MigrationError):
-                engine.retire('wrong')
+                engine.retire('wrong', acknowledgment=CLEANUP_PHRASE)
             self.assertTrue(engine.backup(self.plan['roots'][0]).exists())
 
     def test_changed_plan_refuses_reuse_of_journal(self):

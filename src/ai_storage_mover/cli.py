@@ -10,7 +10,7 @@ import sys
 import webbrowser
 
 from .engine import Engine, run_lock
-from .model import MigrationError, atomic_json, discover, make_plan, read_json, validate
+from .model import CLEANUP_PHRASE, MigrationError, atomic_json, discover, make_plan, read_json, validate
 from .runtime import launch, settings
 from .references import repoint_files, repoint_codex, repoint_claude
 from .configure import configure
@@ -57,6 +57,11 @@ def dashboard(run, port=0, open_browser=True):
 
 
 def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    if not argv or argv == ['setup']:
+        from .gui import main as wizard
+        return wizard()
     parser = argparse.ArgumentParser(description='Move AI/project storage; keep desktop installers and Windows-managed package data in place.')
     commands = parser.add_subparsers(dest='action', required=True)
     plan = commands.add_parser('plan', help='Create an explicit path plan; no source files are changed')
@@ -66,6 +71,7 @@ def main(argv=None):
     plan.add_argument('--root', action='append', default=[], metavar='SOURCE=DESTINATION')
     plan.add_argument('--verification', choices=['hash', 'metadata'], default='hash')
     plan.add_argument('--workers', type=int, default=4)
+    plan.add_argument('--transfer', choices=['auto', 'native', 'portable'], default='auto')
     plan.add_argument('--reserve-gib', type=float, default=2)
     plan.add_argument('--output', required=True)
     for action in ('inspect', 'stage', 'apply', 'retire', 'rollback'):
@@ -75,6 +81,7 @@ def main(argv=None):
             sub.add_argument('--apps-closed', action='store_true')
         if action == 'retire':
             sub.add_argument('--confirm', required=True, help='Exact run ID from the reviewed plan')
+            sub.add_argument('--acknowledge', required=True, help=CLEANUP_PHRASE)
     runtime = commands.add_parser('runtime', help='Generate launch-scoped profile, cache and temp locations')
     runtime.add_argument('--storage-root', required=True)
     runtime.add_argument('--output', required=True)
@@ -109,6 +116,9 @@ def main(argv=None):
     windows.add_argument('--projects')
     windows.add_argument('--configure-only', action='store_true', help='Skip file migration; repair configuration after a completed cutover')
     windows.add_argument('--apps-closed', action='store_true')
+    proof = commands.add_parser('verify-runtime', help=argparse.SUPPRESS)
+    proof.add_argument('--runtime', required=True)
+    proof.add_argument('--output', required=True)
     args = parser.parse_args(argv)
     try:
         if args.action == 'plan':
@@ -120,8 +130,20 @@ def main(argv=None):
                 roots.append((a, b, 'custom'))
             value = make_plan(roots, args.storage_root, verification=args.verification,
                               workers=args.workers, reserve_bytes=int(args.reserve_gib * 1024**3))
+            value['transfer'] = args.transfer
             atomic_json(args.output, value)
             print(json.dumps(value, indent=2))
+        elif args.action == 'verify-runtime':
+            import tempfile
+            runtime = read_json(args.runtime)
+            expected = Path(runtime['environment']['TEMP']).resolve()
+            with tempfile.NamedTemporaryFile() as stream:
+                stream.write(b'proof')
+                stream.flush()
+                actual = Path(stream.name).resolve().parent
+                if actual != expected:
+                    raise MigrationError(f'Temp write used {actual}, expected {expected}')
+            atomic_json(args.output, {'temp': str(actual), 'environment': runtime['environment']})
         elif args.action == 'runtime':
             value = settings(args.storage_root)
             atomic_json(args.output, value)
@@ -177,7 +199,7 @@ def main(argv=None):
                         elif args.action == 'apply':
                             engine.apply(apps_closed=args.apps_closed)
                         elif args.action == 'retire':
-                            engine.retire(args.confirm)
+                            engine.retire(args.confirm, acknowledgment=args.acknowledge)
                         elif args.action == 'rollback':
                             engine.rollback(apps_closed=args.apps_closed)
                     except BaseException as exc:

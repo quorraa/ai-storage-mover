@@ -3,6 +3,9 @@ param([Parameter(Mandatory=$true)][string]$PlanPath,
       [Parameter(Mandatory=$true)][string]$StorageRoot,
       [string]$ProjectsPath,
       [string]$PythonPath='python.exe',
+      [string]$RuntimeInput,
+      [switch]$BundledRuntime,
+      [switch]$PreflightOnly,
       [switch]$ConfigureOnly,
       [switch]$AppsClosed)
 $ErrorActionPreference='Stop'
@@ -12,7 +15,7 @@ if(-not $ProjectsPath){$ProjectsPath=Join-Path $StorageRoot 'Projects'}
 $ProjectsPath=[IO.Path]::GetFullPath($ProjectsPath)
 $plan=Get-Content -LiteralPath $PlanPath -Raw | ConvertFrom-Json
 function Invoke-Mover([string[]]$Arguments){
-    & $PythonPath -m ai_storage_mover @Arguments
+    if($BundledRuntime){ & $PythonPath @Arguments }else{ & $PythonPath -m ai_storage_mover @Arguments }
     if($LASTEXITCODE -ne 0){throw ('Storage operation failed: '+$Arguments[0]+'. Original evidence was retained.')}
 }
 Invoke-Mover @('inspect','--plan',$PlanPath) | Out-Null
@@ -23,6 +26,7 @@ $writers=@(Get-CimInstance Win32_Process | Where-Object {
     $process.Name -in @('codex.exe','claude.exe') -or @($packages | Where-Object {$process.ExecutablePath -and $process.ExecutablePath.StartsWith($_.InstallLocation+'\',[StringComparison]::OrdinalIgnoreCase)}).Count
 })
 if($writers.Count){throw ('AI apps are still running (process IDs '+(($writers.ProcessId | Sort-Object -Unique)-join ', ')+'). Quit them normally before setup; no files were scanned.')}
+if($PreflightOnly){return}
 $run=[IO.Path]::GetFullPath([string]$plan.run_dir)
 New-Item -ItemType Directory -Path $run -Force | Out-Null
 function Save-Phase([string]$phase,[int]$percent,[string]$detail){
@@ -47,13 +51,19 @@ try{
     $launchers=Join-Path $StorageRoot 'Launchers'
     New-Item -ItemType Directory -Path $launchers -Force | Out-Null
     $runtimePath=Join-Path $launchers 'ai-runtime.local.json'
-    Invoke-Mover @('runtime','--storage-root',$StorageRoot,'--output',$runtimePath) | Out-Null
+    if($RuntimeInput){Copy-Item -LiteralPath $RuntimeInput -Destination $runtimePath -Force}
+    else{Invoke-Mover @('runtime','--storage-root',$StorageRoot,'--output',$runtimePath) | Out-Null}
     $runtime=Get-Content -LiteralPath $runtimePath -Raw | ConvertFrom-Json
     # Respect destinations selected in the plan rather than assuming profile names.
     foreach($profile in @(@{Source='.codex';Variable='CODEX_HOME'},@{Source='.claude';Variable='CLAUDE_CONFIG_DIR'})){
-        $entry=$plan.roots | Where-Object {[IO.Path]::GetFileName([string]$_.source) -eq $profile.Source} | Select-Object -First 1
+        $provider=if($profile.Source -eq '.codex'){'codex'}else{'claude'}
+        $entry=$plan.roots | Where-Object {([IO.Path]::GetFileName([string]$_.source) -eq $profile.Source -or $_.provider -eq $provider) -and $_.category -eq 'profile'} | Select-Object -First 1
         if($entry){$runtime.environment.($profile.Variable)=[string]$entry.destination}
         else{
+            $chosen=[string]$runtime.environment.($profile.Variable)
+            $chosenRoot=$plan.roots | Where-Object {$chosen -and ($chosen.Equals([string]$_.destination,[StringComparison]::OrdinalIgnoreCase) -or $chosen.StartsWith([string]$_.destination+'\',[StringComparison]::OrdinalIgnoreCase))} | Select-Object -First 1
+            if($RuntimeInput -and $chosenRoot){continue}
+            if($RuntimeInput -and $chosen -and (Test-Path -LiteralPath $chosen) -and $chosen.StartsWith($StorageRoot+'\',[StringComparison]::OrdinalIgnoreCase)){continue}
             $current=[Environment]::GetEnvironmentVariable($profile.Variable,'User')
             if($current -and $current.StartsWith($StorageRoot+'\',[StringComparison]::OrdinalIgnoreCase)){$runtime.environment.($profile.Variable)=$current}
             else{$runtime.environment.PSObject.Properties.Remove($profile.Variable)}
@@ -153,7 +163,7 @@ Set-Location -LiteralPath $ProjectPath
     $link.TargetPath=$powerShell; $link.WorkingDirectory=$ProjectsPath
     $link.Arguments='-NoProfile -NoExit -File "'+$terminal+'" -RuntimePath "'+$runtimePath+'" -ProjectPath "'+$ProjectsPath+'"'
     $link.Save()
-    $pathEntries=@([string]$runtime.environment.npm_config_prefix)
+    $pathEntries=@([string]$runtime.environment.npm_config_prefix,[string]$runtime.environment.UV_TOOL_BIN_DIR) | Where-Object {$_}
     foreach($entry in ([string]$envBackup['Path'] -split ';' | Where-Object {$_})){
         $changed=$entry
         foreach($root in $plan.roots){
@@ -190,8 +200,7 @@ Set-Location -LiteralPath $ProjectPath
         }
     }
     # Verify an actual child-process temp write; command output is private evidence.
-    & $PythonPath -c 'import tempfile,pathlib,os,json; f=tempfile.NamedTemporaryFile(delete=False); f.write(b"proof"); f.close(); p=pathlib.Path(f.name); assert p.parent.resolve()==pathlib.Path(os.environ["TEMP"]).resolve(); p.unlink(); print(json.dumps({"temp_write":str(p),"uv_cache":os.environ["UV_CACHE_DIR"],"pip_cache":os.environ["PIP_CACHE_DIR"],"npm_cache":os.environ["npm_config_cache"]}))' | Set-Content -LiteralPath (Join-Path $run 'future-write-proof.json') -Encoding UTF8
-    if($LASTEXITCODE -ne 0){throw 'Fresh temp write did not verify'}
+    Invoke-Mover @('verify-runtime','--runtime',$runtimePath,'--output',(Join-Path $run 'future-write-proof.json')) | Out-Null
     @{runtime=$runtimePath;projects=$ProjectsPath;shortcuts=$updated;software='Windows-managed installers remain registered';sourceCleanup='Run retire after checking reopened apps';configureOnly=[bool]$ConfigureOnly} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $run 'setup-complete.json') -Encoding UTF8
     Save-Phase 'ready' 98 'Storage setup verified. Reopen apps and terminal tabs from the new launchers; retire original backups after checking them.'
 }catch{

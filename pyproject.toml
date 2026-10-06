@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-storage-mover"
-version = "0.1.0"
+version = "0.2.0"
 description = "Move project and AI storage with verified copies, resumable cutover, and scoped runtime settings"
 requires-python = ">=3.11"
 license = {text = "MIT"}
@@ -17,6 +17,9 @@ Issues = "https://github.com/quorraa/ai-storage-mover/issues"
 
 [project.scripts]
 ai-storage-mover = "ai_storage_mover.cli:main"
+
+[project.gui-scripts]
+ai-storage-mover-gui = "ai_storage_mover.gui:main"
 
 [tool.setuptools.package-data]
 ai_storage_mover = ["dashboard.html", "Activate-Package.ps1", "Setup-Storage.ps1", "repair_claude_browser_state.cjs"]

@@ -13,7 +13,7 @@ from threading import Lock
 import time
 import uuid
 
-from .model import (MigrationError, atomic_json, fingerprint, inside, linked,
+from .model import (CLEANUP_PHRASE, MigrationError, atomic_json, fingerprint, inside, linked,
                     physical_parents, read_json, validate)
 
 
@@ -101,8 +101,9 @@ def run_lock(run):
 
 
 class Engine:
-    def __init__(self, plan):
+    def __init__(self, plan, *, cancelled=None):
         self.plan = validate(plan)
+        self.cancelled = cancelled or (lambda: False)
         self.run = Path(plan["run_dir"])
         self.run.mkdir(parents=True, exist_ok=True)
         if linked(self.run):
@@ -128,6 +129,11 @@ class Engine:
         atomic_json(self.run / "state.json", self.state)
 
     def update(self, phase, *, done=0, total=None, detail="", percent=0, force=False, **extra):
+        if phase != 'failed' and self.cancelled():
+            detail = ('Stopped. Completed cleanup deletions cannot be undone; remaining old copies stay.'
+                      if any(v.get('state') in ('retiring', 'retired') for v in self.state['roots'].values())
+                      else 'Stopped. Original files are retained; reopen this migration to continue.')
+            raise MigrationError(detail)
         self.state["percent"] = max(self.state.get("percent", 0), percent)
         if force or time.monotonic() - self.last >= 0.5:
             atomic_json(self.run / "status.json", dict(updated_utc=utc(), phase=phase, done=done, total=total,
@@ -196,6 +202,8 @@ class Engine:
                             targets[child.name.casefold() if os.name == 'nt' else child.name] = child.stat(follow_symlinks=False)
                 with os.scandir(path) as children:
                     for child in children:
+                        if self.cancelled():
+                            raise MigrationError('Stopped. Original files are retained.')
                         rel = child.name if relative == "." else relative + "/" + child.name
                         child_info = child.stat(follow_symlinks=False)
                         # Windows enumeration supplies this metadata already.
@@ -287,15 +295,24 @@ class Engine:
                 destination_sig, digest, action, size = future.result()
                 record(entry, relative, "f", source_sig, destination_sig, digest)
                 completed += 1
-                copied += action == "copied"
-                reused += action != "copied"
-                copied_bytes += size
+                native = entry['id'] in native_roots
+                copied += action == "copied" or native
+                reused += action != "copied" and not native
+                copied_bytes += source_sig[1] if native else size
             if completed % 1000 == 0:
                 self.db.commit()
             self.update("copying", done=completed, total=None, detail="Scanning and verifying; final total is still being counted",
                         percent=10, copied=copied, reused=reused, copied_bytes=copied_bytes)
 
         self.update("scanning", detail="Counting storage entries without following links", force=True)
+        native_roots = set()
+        if os.name == 'nt' and self.plan.get('transfer', 'auto') != 'portable':
+            from .native import copy_new_tree
+            for entry in self.plan['roots']:
+                self.check_volume(entry)
+                if copy_new_tree(entry, self.run, reserve=self.plan['reserve_bytes'],
+                                 notify=self.update, cancelled=self.cancelled):
+                    native_roots.add(entry['id'])
         with ThreadPoolExecutor(max_workers=self.plan["workers"]) as pool:
             for entry in self.plan["roots"]:
                 self.check_volume(entry)
@@ -311,6 +328,23 @@ class Engine:
                                              (entry["id"], relative)).fetchone()
                     cached = (load(cached[0]), load(cached[1]), cached[2]) if cached else None
                     if kind == "f":
+                        # Metadata-matched files need no future, open/read or hash.
+                        # Keep this common clone/native-copy path in the scan loop.
+                        if self.plan['verification'] == 'metadata' and target_info not in (None, False) and kind_of(target_info) == 'f':
+                            destination_sig = signature(target_info, target)
+                            if source_sig[1:] == destination_sig[1:]:
+                                record(entry, relative, kind, source_sig, destination_sig, None)
+                                completed += 1
+                                if entry['id'] in native_roots:
+                                    copied += 1
+                                    copied_bytes += source_sig[1]
+                                else:
+                                    reused += 1
+                                if count % 1000 == 0:
+                                    self.db.commit()
+                                    self.update('scanning', done=completed, detail=f'Checking {entry["category"]}: {path.parent.name}',
+                                                percent=10, copied=copied, reused=reused, copied_bytes=copied_bytes)
+                                continue
                         future = pool.submit(self.copy_file, path, target, source_sig, entry, relative, cached, target_info)
                         pending[future] = (entry, relative, source_sig)
                         if len(pending) >= self.plan["workers"] * 2:
@@ -362,6 +396,8 @@ class Engine:
                     raise MigrationError("Destination entry disappeared; backup retained")
                 if kind == "f" and (linked(target) or not target.is_file()):
                     raise MigrationError("Destination type changed; backup retained")
+                if kind == 'd' and (linked(target) or not target.is_dir()):
+                    raise MigrationError('Destination directory changed; backup retained')
         expected = self.db.execute("SELECT count(*) FROM files WHERE root=?", (entry["id"],)).fetchone()[0]
         if not allow_missing and observed != expected:
             raise MigrationError("Source entries disappeared since verification")
@@ -416,11 +452,85 @@ class Engine:
         self.update("ready-for-cleanup", done=len(self.plan["roots"]), total=len(self.plan["roots"]), percent=90,
                     detail="Storage switched. Test apps through their launchers, then explicitly retire verified backups.", force=True)
 
-    def retire(self, confirm):
+    def verify_cleanup_contents(self):
+        """Fast setup never authorizes deletion by size/date alone.
+
+        Validate every retained root before deleting ANY root. Journal matching
+        SHA-256 identities avoids repeat reads on content-verified migrations.
+        A changed/later destination is retained together with its old copy.
+        """
+        checked = 0
+        total = self.db.execute("SELECT count(*) FROM files WHERE kind='f'").fetchone()[0]
+        self.update('cleanup-verification', done=0, total=total, detail='Checking contents before permanent deletion', force=True)
+        with ThreadPoolExecutor(max_workers=self.plan['workers']) as pool:
+            pending = {}
+
+            def compare(source, target, before, current):
+                a, b = sha(source), sha(target)
+                if sig(source) != before or sig(target) != current or a != b:
+                    raise MigrationError(f'Copies differ or changed: {source}. Old copies retained; reconcile them before cleanup.')
+                return a
+
+            def collect(finished):
+                nonlocal checked
+                for future in finished:
+                    entry, relative, before, current = pending.pop(future)
+                    digest = future.result()
+                    self.db.execute('UPDATE files SET digest=?,destination_sig=? WHERE root=? AND relative=?',
+                                    (digest, dump(current), entry['id'], relative))
+                    checked += 1
+                self.db.commit()
+                self.update('cleanup-verification', done=checked, total=total,
+                            detail='Checking contents before permanent deletion', percent=40 * checked / max(total, 1))
+
+            for entry in self.plan['roots']:
+                self.check_volume(entry)
+                value, backup = self.root_state(entry), self.backup(entry)
+                if not correct_link(entry['source'], entry['destination']):
+                    raise MigrationError('Source pointer changed; no retirement permitted')
+                if not backup.exists():
+                    if value.get('state') not in ('retiring', 'retired'):
+                        raise MigrationError('Original backup is missing; cleanup refused')
+                    continue
+                if linked(backup) or sig(backup)[0] != value.get('backup_identity'):
+                    raise MigrationError('Backup identity changed')
+                self.check_manifest(entry, backup, allow_missing=value.get('state') == 'retiring', destination_present=True)
+                rows = self.db.execute('SELECT relative,kind,source_sig,destination_sig,digest FROM files WHERE root=?', (entry['id'],))
+                for relative, kind, old_source, old_destination, digest in rows:
+                    source = backup if relative == '.' else backup / relative
+                    target = Path(entry['destination']) if relative == '.' else Path(entry['destination']) / relative
+                    if not os.path.lexists(source):
+                        continue
+                    if kind == 'l':
+                        if not linked(target) or os.readlink(source) != os.readlink(target):
+                            raise MigrationError('Destination link changed; backup retained')
+                    if kind != 'f':
+                        continue
+                    before, current = sig(source), sig(target)
+                    if before != load(old_source):
+                        raise MigrationError('Original file changed; backup retained')
+                    if digest and current == load(old_destination):
+                        checked += 1
+                        continue
+                    future = pool.submit(compare, source, target, before, current)
+                    pending[future] = (entry, relative, before, current)
+                    if len(pending) >= self.plan['workers'] * 2:
+                        collect(wait(pending, return_when=FIRST_COMPLETED)[0])
+                # Finish this cursor before updating its journal in the next root.
+            while pending:
+                collect(wait(pending, return_when=FIRST_COMPLETED)[0])
+        self.db.commit()
+
+    def retire(self, confirm, *, acknowledgment=None):
+        if acknowledgment != CLEANUP_PHRASE:
+            raise MigrationError('Permanent cleanup requires the exact typed acknowledgment phrase')
         if confirm != self.plan["id"] or not self.state.get("cutover_complete"):
             raise MigrationError("Retirement needs complete cutover and the exact confirmation run ID")
         if self.state.get("verified", {}).get("plan_hash") != self.plan_hash:
             raise MigrationError("Missing complete verification receipt")
+        # Cleanup is a separate, explicitly confirmed task with its own progress.
+        self.state['percent'] = 0
+        self.verify_cleanup_contents()
         total = self.state["verified"]["entries"]
         removed = self.state.get("removed", 0)
         for entry in self.plan["roots"]:
@@ -435,8 +545,8 @@ class Engine:
                 self.check_manifest(entry, backup, allow_missing=value.get("state") == "retiring", destination_present=True)
                 value["state"] = "retiring"
                 self.save()
-                rows = self.db.execute("SELECT relative,kind FROM files WHERE root=? ORDER BY length(relative) DESC", (entry["id"],))
-                for relative, kind in rows:
+                rows = self.db.execute("SELECT relative,kind,source_sig,destination_sig FROM files WHERE root=? ORDER BY length(relative) DESC", (entry["id"],))
+                for relative, kind, original_sig, verified_sig in rows:
                     target = backup if relative == "." else backup / relative
                     if not inside(target, backup):
                         raise MigrationError("Manifest path escaped backup")
@@ -452,13 +562,17 @@ class Engine:
                     else:
                         if linked(target):
                             raise MigrationError("File replaced by a link")
+                        destination = Path(entry['destination']) if relative == '.' else Path(entry['destination']) / relative
+                        physical_parents(destination)
+                        if linked(destination) or sig(target) != load(original_sig) or sig(destination) != load(verified_sig):
+                            raise MigrationError('A file changed during cleanup; remaining old copies retained')
                         if getattr(os.lstat(target), "st_file_attributes", 0) & 1:
                             os.chmod(target, stat.S_IWRITE)
                         os.unlink(target)
                     removed += 1
                     self.state["removed"] = removed
                     self.update("cleanup", done=removed, total=total, detail=f"Clearing verified backup: {entry['id']}",
-                                percent=90 + 10 * min(removed, total) / max(total, 1))
+                                percent=40 + 60 * min(removed, total) / max(total, 1))
                     if removed % 1000 == 0:
                         self.save()
             value["state"] = "retired"

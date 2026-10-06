@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import tomllib
 import unittest
+from unittest.mock import patch
 
 from ai_storage_mover.configure import configure, codex_environment
 from ai_storage_mover.model import make_plan, MigrationError
@@ -39,6 +40,20 @@ url = "https://example.invalid/mcp"
         self.assertEqual(value['mcp_servers']['custom.server']['env']['TOKEN'], 'also keep')
         self.assertEqual(value['mcp_servers']['custom.server']['env']['TEMP'], str(self.base))
         self.assertNotIn('env', value['mcp_servers']['remote'])
+
+    def test_desktop_setup_preserves_standalone_legacy_claude_preferences(self):
+        home = self.base / 'home'
+        home.mkdir()
+        legacy = home / '.claude.json'
+        legacy.write_text(json.dumps({'preference': 'retain me', 'projects': {}}))
+        old = self.base / 'old-project'
+        old.mkdir()
+        plan = make_plan([(old, self.base / 'new-project', 'project')], self.base / 'storage')
+        profile = self.base / 'claude-profile'
+        with patch('ai_storage_mover.configure.Path.home', return_value=home):
+            configure(plan, settings(self.base / 'storage'), claude=profile, apps_closed=True)
+        self.assertEqual(json.loads((profile / '.claude.json').read_text())['preference'], 'retain me')
+        self.assertEqual(json.loads(legacy.read_text())['preference'], 'retain me')
 
     def test_future_writes_and_legacy_preferences_survive_idempotent_setup(self):
         old = self.base / 'old-project'
