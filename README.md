@@ -101,6 +101,8 @@ $env:PYTHONPATH = "$PWD\src"
 python -m unittest discover -s tests -v
 # Optional native browser-state fixtures after installing classic-level above:
 node tools\test_browser_state.cjs
+# Windows PowerShell 5 status/journal integration fixtures:
+powershell -NoProfile -File tools\test_windows_setup.ps1
 python tools\benchmark.py --files 1000
 ```
 

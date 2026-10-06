@@ -37,7 +37,7 @@ function Save-Phase([string]$phase,[int]$percent,[string]$detail){
     $target=Join-Path $run 'status.json'
     $temp=Join-Path $run ('setup-status-'+[Guid]::NewGuid().ToString('N')+'.tmp')
     [IO.File]::WriteAllText($temp,($value | ConvertTo-Json))
-    if(Test-Path -LiteralPath $target){[IO.File]::Replace($temp,$target,$null)}else{[IO.File]::Move($temp,$target)}
+    if(Test-Path -LiteralPath $target){[IO.File]::Replace($temp,$target,[NullString]::Value)}else{[IO.File]::Move($temp,$target)}
     Write-Host $detail
 }
 try{
