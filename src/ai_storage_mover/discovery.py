@@ -10,7 +10,7 @@ from .model import inside, linked, protected
 
 def candidates(home=None, environment=None):
     home = Path(home or Path.home())
-    env = dict(os.environ if environment is None else environment)
+    env = {k.upper(): v for k, v in (os.environ if environment is None else environment).items()}
     local = Path(env.get('LOCALAPPDATA', home / 'AppData' / 'Local'))
     roaming = Path(env.get('APPDATA', home / 'AppData' / 'Roaming'))
     values = []
@@ -35,12 +35,12 @@ def candidates(home=None, environment=None):
     add('Shared agent settings', home / '.agents', 'profile', 'Profiles/shared-agents')
     for label, variable, fallback, slot in (
         ('uv cache', 'UV_CACHE_DIR', local / 'uv' / 'cache', 'Cache/uv/cache'),
-        ('pip cache', 'PIP_CACHE_DIR', local / 'pip', 'Cache/pip/cache'),
+        ('pip cache', 'PIP_CACHE_DIR', local / 'pip' / 'Cache', 'Cache/pip/cache'),
         ('npm cache', 'npm_config_cache', local / 'npm-cache', 'Cache/npm-cache'),
         ('Python bytecode', 'PYTHONPYCACHEPREFIX', None, 'Cache/python-bytecode'),
         ('Claude temp', 'CLAUDE_CODE_TMPDIR', None, 'Temp/claude'),
     ):
-        path = env.get(variable) or fallback
+        path = env.get(variable.upper()) or fallback
         if path:
             add(label, path, 'temp' if 'temp' in label else 'cache', slot)
     uv_data = roaming / 'uv' / 'data' if os.name == 'nt' else home / '.local' / 'share' / 'uv'
@@ -49,6 +49,13 @@ def candidates(home=None, environment=None):
         ('uv installed tools', 'UV_TOOL_DIR', uv_data / 'tools', 'Toolchains/uv/tools'),
     ):
         add(label, env.get(variable) or fallback, 'toolchain', slot)
+    if os.name == 'nt':
+        # Retain older uv layouts as separate suggestions for an explicit choice.
+        add('uv Python versions (older layout)', roaming / 'uv' / 'python', 'toolchain', 'Toolchains/uv/python')
+        add('uv installed tools (older layout)', roaming / 'uv' / 'tools', 'toolchain', 'Toolchains/uv/tools')
+        add('Codex desktop cache', local / 'Codex', 'cache', 'Cache/codex-desktop')
+        add('Codex desktop settings', roaming / 'Codex', 'profile', 'Profiles/codex-desktop')
+        add('npm global packages', env.get('NPM_CONFIG_PREFIX') or roaming / 'npm', 'toolchain', 'Toolchains/npm-global')
     # Shared Windows temp is a future-write suggestion, NEVER a migration root.
     shared = [local / 'Temp', Path(env.get('WINDIR', 'C:/Windows')) / 'Temp']
     for key in ('TEMP', 'TMP', 'TMPDIR'):

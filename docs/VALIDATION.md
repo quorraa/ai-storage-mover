@@ -2,7 +2,7 @@
 
 ## Desktop setup v0.2.0
 
-Windows with Python 3.14: **49 fixture tests passed** in 20.899 seconds. New cases cover saved desktop sessions, exact project destinations, nested profile/cache mapping, standalone Claude preferences, bounded discovery, native-copy failures, retained originals, corruption detected before deleting any root, and the exact cleanup phrase in both the UI and backend. Windows PowerShell 5 status/journal integration passed.
+Windows with Python 3.14: **51 fixture tests passed** in 20.415 seconds. New cases cover saved desktop sessions, exact project destinations, nested profile/cache mapping, standalone Claude preferences, bounded discovery, native-copy failures, retained originals, corruption detected before deleting any root (including a previously hash-verified copy with unchanged size/timestamps), and the exact cleanup phrase in both the UI and backend. Detection covers Windows environment-variable casing, pip's actual cache directory, npm global packages, Codex desktop storage and older uv layouts. Windows PowerShell 5 status/journal integration passed.
 
 The portable Windows GUI/worker bundle was built with PyInstaller 6.22.3. Its windowed Tk startup, native copy/cutover on disposable folders, retained originals, a real bundled-process temp write, and refusal of missing/wrong cleanup acknowledgments passed. UI fixtures were inspected at 1040×760 and 880×690, including review and permanent-cleanup states. Exact-destination controls and the fixed footer fit the compact window.
 

@@ -68,6 +68,17 @@ class WizardTests(unittest.TestCase):
             cleanup(session, CLEANUP_PHRASE, tested=True, configure_windows=False)
         self.assertEqual((Path(backups(session)[0]) / 'file.txt').read_text(), 'original')
 
+    def test_hash_verified_copy_is_rehashed_before_destructive_cleanup(self):
+        session = create_session([self.source], self.base / 'storage', verify_contents=True, reserve_bytes=0)
+        migrate(session, configure_windows=False)
+        target = Path(session['plan']['roots'][0]['destination']) / 'file.txt'
+        before = target.stat()
+        target.write_text('corrupt!')
+        os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
+        with self.assertRaises(MigrationError):
+            cleanup(session, CLEANUP_PHRASE, tested=True, configure_windows=False)
+        self.assertEqual((Path(backups(session)[0]) / 'file.txt').read_text(), 'original')
+
     def test_core_retire_cannot_bypass_typed_acknowledgment(self):
         session = self.session()
         with closing(Engine(session['plan'])) as engine:
@@ -124,6 +135,17 @@ class WizardTests(unittest.TestCase):
         custom.mkdir()
         hits = candidates(home, {'CODEX_HOME': str(custom)})
         self.assertEqual(len([h for h in hits if h.get('provider') == 'codex']), 2)
+
+    def test_windows_cache_detection_respects_environment_case_and_real_pip_root(self):
+        home = self.base / 'home'
+        local = home / 'AppData' / 'Local'
+        pip = local / 'pip' / 'Cache'
+        pip.mkdir(parents=True)
+        npm = self.base / 'custom-npm'
+        npm.mkdir()
+        hits = candidates(home, {'LOCALAPPDATA': str(local), 'NPM_CONFIG_CACHE': str(npm)})
+        self.assertEqual(next(h['source'] for h in hits if h['label'] == 'npm cache'), str(npm))
+        self.assertEqual(next(h['source'] for h in hits if h['label'] == 'pip cache'), str(pip))
 
     def test_scan_is_bounded_and_does_not_descend_dependency_trees(self):
         (self.source / 'pyproject.toml').write_text('[project]')

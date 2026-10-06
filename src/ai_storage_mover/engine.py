@@ -455,8 +455,8 @@ class Engine:
     def verify_cleanup_contents(self):
         """Fast setup never authorizes deletion by size/date alone.
 
-        Validate every retained root before deleting ANY root. Journal matching
-        SHA-256 identities avoids repeat reads on content-verified migrations.
+        Validate every retained root before deleting ANY root. Re-read contents
+        even when metadata matches: disk corruption can preserve timestamps.
         A changed/later destination is retained together with its old copy.
         """
         checked = 0
@@ -509,9 +509,6 @@ class Engine:
                     before, current = sig(source), sig(target)
                     if before != load(old_source):
                         raise MigrationError('Original file changed; backup retained')
-                    if digest and current == load(old_destination):
-                        checked += 1
-                        continue
                     future = pool.submit(compare, source, target, before, current)
                     pending[future] = (entry, relative, before, current)
                     if len(pending) >= self.plan['workers'] * 2:
