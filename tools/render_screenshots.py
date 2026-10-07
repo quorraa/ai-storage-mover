@@ -112,6 +112,7 @@ def capture(name):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--empty-only', action='store_true', help='Capture only the first-run project screen')
+    parser.add_argument('--repair-only', action='store_true', help='Capture the repair review using fictional paths')
     args = parser.parse_args()
     if os.name != 'nt':
         raise SystemExit('This captures the actual Windows window; run on Windows.')
@@ -148,7 +149,13 @@ def main():
                 time.sleep(.35)
                 capture(name)
 
-            shot('empty-projects-light', "state.projects=[];state.visited=0;theme('light')")
+            repair = dict(repair=dict(phase='complete', active=False, mode='inspect',
+                detail='A redirected Codex Roaming profile was found.', inspection=dict(affected=True,
+                public=r'C:\Users\Demo\AppData\Roaming\Codex', source=r'E:\AI\AppData\Codex')))
+            shot('repair-dark', "state.view='repair';theme('dark');state.snapshot=" + json.dumps(repair), compact=True)
+            if args.repair_only:
+                return
+            shot('empty-projects-light', "state.view='setup';state.projects=[];state.visited=0;theme('light')")
             shot('empty-projects-dark', "theme('dark')", compact=True)
             if args.empty_only:
                 return
@@ -171,7 +178,7 @@ def main():
     webview.start(work, gui='edgechromium', debug=False, http_server=False, private_mode=True)
     if failures:
         raise failures[0]
-    print(f'Saved {2 if args.empty_only else 9} synthetic-only screenshots to docs/screenshots; no real data read or moved.')
+    print(f'Saved {1 if args.repair_only else 3 if args.empty_only else 10} synthetic-only screenshots to docs/screenshots; no real data read or moved.')
 
 
 if __name__ == '__main__':

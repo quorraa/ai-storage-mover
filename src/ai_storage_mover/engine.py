@@ -14,7 +14,7 @@ import time
 import uuid
 
 from .model import (CLEANUP_PHRASE, MigrationError, atomic_json, fingerprint, inside, linked,
-                    physical_parents, read_json, validate)
+                    physical_parents, read_json, validate, protected)
 
 
 def utc():
@@ -189,6 +189,8 @@ class Engine:
         stack = [(source, ".", os.lstat(source), None)]
         while stack:
             path, relative, info, target_info = stack.pop()
+            if protected(path):
+                raise MigrationError(f'Selection contains protected desktop/system data: {path}')
             kind = kind_of(info)
             if kind == "unsupported":
                 raise MigrationError(f"Unsupported file type: {path}")

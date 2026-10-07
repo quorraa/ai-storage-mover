@@ -6,6 +6,8 @@ Move an existing AI and development setup when projects, caches and build files 
 
 **Use at your own risk. Make a separate manual backup before doing anything.** Files can become corrupted and the target drive can fail. Verification and retained originals reduce risk; they do not replace an independent backup or guarantee against data loss. See the [MIT license](LICENSE).
 
+**Upgrade from v0.2.0–v0.2.2 before migrating more data.** Those versions did not fully block manual desktop-profile moves. Redirecting Codex's Roaming profile through a junction was implicated in a severe Windows memory leak. v0.2.3 blocks those moves and includes **Repair Codex**. [What changed and how to repair](docs/CODEX-REPAIR.md).
+
 ## Screenshots
 
 Fictional projects, paths and storage figures. Progress is illustrative.
@@ -68,6 +70,6 @@ This removes every selected original project, profile, cache and temp copy liste
 
 Windows 10/11 x64 is the desktop download target. The desktop bundle includes Python and pywebview, with an offline interface rendered by Microsoft Edge WebView2. If WebView2 is missing, install the [Microsoft WebView2 Evergreen Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). Fonts and interface assets are bundled; setup does not load a website. The core is Python 3.11+ with no runtime dependencies. The optional offline Claude browser-state adapter requires Node/npm and installs its dependency with scripts disabled.
 
-Windows-managed installers, WindowsApps, private package/sandbox directories and shared Windows temp are not relocated. Windows can still write internal files to C:. Existing virtual environments may retain interpreter paths and need rebuilding; this tool does not silently recreate dependencies. It cannot guarantee every third-party application honors storage settings.
+Windows-managed installers, WindowsApps, private package/sandbox directories, Codex/Claude/ChatGPT desktop profiles and shared Windows temp are not relocated. These desktop profiles stay on the system drive; CLI profiles (`.codex`, `.claude`), projects and supported development caches can move. Windows can still write internal files to C:. Existing virtual environments may retain interpreter paths and need rebuilding; this tool does not silently recreate dependencies. It cannot guarantee every third-party application honors storage settings.
 
 [Advanced CLI / developer guide](docs/CLI.md) · [Validation](docs/VALIDATION.md) · [Limitations](docs/limitations.md) · [Sources](docs/sources.md)

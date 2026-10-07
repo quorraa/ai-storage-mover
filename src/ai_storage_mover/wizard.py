@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 from .engine import Engine, run_lock, utc
-from .model import CLEANUP_PHRASE, MigrationError, atomic_json, inside, protected, read_json, make_plan, validate
+from .model import CLEANUP_PHRASE, MigrationError, atomic_json, inside, protected, read_json, make_plan, validate, assert_movable, validate_runtime
 from .runtime import settings
 from .references import map_path
 
@@ -18,6 +18,10 @@ def create_session(projects, storage, items=(), *, tools_temp=None, claude_temp=
     if protected(storage) or protected(project_base):
         raise MigrationError('Choose an ordinary storage folder outside Windows and app packages')
     destinations = destinations or {}
+    for path in [*projects, *(i['source'] for i in items)]:
+        assert_movable(path)
+    if any(i.get('provider') == 'codex-desktop' for i in items):
+        raise MigrationError('Desktop profiles stay in place. Use Repair Codex for an older migration.')
     roots = [(Path(p).resolve(), Path(destinations.get(str(Path(p).resolve()), project_base / Path(p).resolve().name)).absolute(), 'project') for p in projects]
     for item in items:
         source = Path(item['source']).resolve()
@@ -56,11 +60,11 @@ def create_session(projects, storage, items=(), *, tools_temp=None, claude_temp=
                        ('CLAUDE_CODE_TMPDIR', claude_temp)):
         if value:
             path = Path(value).absolute()
+            assert_movable(path)
             if protected(path) or path == Path(path.anchor):
                 raise MigrationError('Choose a dedicated temp folder outside Windows and app packages')
             runtime['environment'][key] = str(path)
-    for provider, variable in (('codex', 'CODEX_HOME'), ('claude', 'CLAUDE_CONFIG_DIR'),
-                               ('codex-desktop', 'CODEX_ELECTRON_USER_DATA_PATH')):
+    for provider, variable in (('codex', 'CODEX_HOME'), ('claude', 'CLAUDE_CONFIG_DIR')):
         entry = next((r for r in plan['roots'] if r.get('provider') == provider or
                       (r['category'] == 'profile' and Path(r['source']).name == '.' + provider)), None)
         if entry:
@@ -96,6 +100,7 @@ def load_session(file):
     if value.get('schema') != 1:
         raise MigrationError('Unknown saved setup')
     validate(value['plan'])
+    validate_runtime(value['runtime'])
     if file.resolve().parent != Path(value['plan']['run_dir']).resolve():
         raise MigrationError('Saved setup was moved; choose its original migration folder')
     return value
@@ -135,6 +140,8 @@ def windows_setup(session, *, preflight=False):
 
 
 def migrate(session, *, cancelled=lambda: False, configure_windows=True):
+    validate(session['plan'])
+    validate_runtime(session['runtime'])
     save_session(session)
     run = Path(session['plan']['run_dir'])
     if os.name == 'nt' and configure_windows:
@@ -168,6 +175,8 @@ def backups(session):
 
 
 def cleanup(session, phrase, *, tested=False, cancelled=lambda: False, configure_windows=True):
+    validate(session['plan'])
+    validate_runtime(session['runtime'])
     if phrase != CLEANUP_PHRASE or not tested:
         raise MigrationError('Test the new projects and type the complete confirmation phrase')
     if session.get('status') not in ('complete', 'cleaned'):

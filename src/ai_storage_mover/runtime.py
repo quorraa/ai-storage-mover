@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 import subprocess
-from .model import MigrationError, atomic_json, read_json
+from .model import MigrationError, atomic_json, read_json, validate_runtime
 
 
 def settings(storage):
@@ -29,6 +29,7 @@ def settings(storage):
 
 
 def launch(runtime, command):
+    validate_runtime(runtime)
     if runtime.get("schema") != 1 or not command:
         raise MigrationError("Invalid runtime or missing command")
     env = os.environ.copy()

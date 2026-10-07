@@ -46,6 +46,7 @@ try:
     worker, gui = bundle / 'ai-storage-worker.exe', bundle / 'AI Storage Mover.exe'
     assert worker.is_file() and gui.is_file()
     assert gui.with_name(gui.name + '.config').is_file(), 'Missing executable-scoped CLR configuration'
+    assert (bundle / '_internal' / 'ai_storage_mover' / 'Start-CodexRepair.ps1').is_file(), 'Missing UI repair launcher'
     if args.internet_zone:
         for file in bundle.rglob('*'):
             if file.is_file():

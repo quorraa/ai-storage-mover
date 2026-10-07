@@ -31,6 +31,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bundled desktop fixtures failed' }
           python tools/bundle_licenses.py
           if ($LASTEXITCODE -ne 0) { throw 'Bundle notices failed' }
+      - name: Verify independent repair worker across launching-process teardown
+        run: python tools/test_repair_worker.py --bundle "dist/AI Storage Mover"
+        env:
+          PYTHONPATH: src
       - name: Verify the downloaded ZIP with Windows Internet flags
         shell: powershell
         run: |

@@ -147,21 +147,16 @@ class WizardTests(unittest.TestCase):
         self.assertEqual(next(h['source'] for h in hits if h['label'] == 'npm cache'), str(npm))
         self.assertEqual(next(h['source'] for h in hits if h['label'] == 'pip cache'), str(pip))
 
-    def test_desktop_profile_override_requires_selected_or_existing_destination(self):
+    def test_desktop_profile_override_is_never_migrated_or_propagated(self):
         profile = self.base / 'desktop-profile'
         profile.mkdir()
         item = dict(source=str(profile), slot='Profiles/codex-desktop', category='profile', provider='codex-desktop')
         with patch.dict(os.environ, {'CODEX_ELECTRON_USER_DATA_PATH': str(profile)}):
             self.assertNotIn('CODEX_ELECTRON_USER_DATA_PATH', self.session()['runtime']['environment'])
-            selected = create_session([self.source], self.base / 'storage', [item], reserve_bytes=0)
-        self.assertEqual(selected['runtime']['environment']['CODEX_ELECTRON_USER_DATA_PATH'],
-                         str(self.base / 'storage' / 'Profiles' / 'codex-desktop'))
-        missing = self.base / 'storage' / 'missing-desktop'
-        with patch.dict(os.environ, {'CODEX_ELECTRON_USER_DATA_PATH': str(missing)}):
-            self.assertNotIn('CODEX_ELECTRON_USER_DATA_PATH', self.session()['runtime']['environment'])
-        missing.mkdir(parents=True)
-        with patch.dict(os.environ, {'CODEX_ELECTRON_USER_DATA_PATH': str(missing)}):
-            self.assertEqual(self.session()['runtime']['environment']['CODEX_ELECTRON_USER_DATA_PATH'], str(missing))
+            with self.assertRaises(MigrationError):
+                create_session([self.source], self.base / 'storage', [item], reserve_bytes=0)
+        with self.assertRaises(MigrationError):
+            create_session([self.source], self.base / 'storage', [item], reserve_bytes=0)
 
     @unittest.skipUnless(os.name == 'nt', 'Windows packaged-profile virtualization')
     def test_packaged_desktop_does_not_select_stale_roaming_profile(self):
@@ -173,8 +168,7 @@ class WizardTests(unittest.TestCase):
         actual = self.base / 'actual-desktop'
         actual.mkdir()
         hits = candidates(home, {'codex_electron_user_data_path': str(actual)})
-        desktop = next(h for h in hits if h.get('provider') == 'codex-desktop')
-        self.assertEqual(desktop['source'], str(actual))
+        self.assertFalse(any(h.get('provider') == 'codex-desktop' for h in hits))
         self.assertNotIn(str(stale), [h['source'] for h in hits])
 
     def test_scan_is_bounded_and_does_not_descend_dependency_trees(self):

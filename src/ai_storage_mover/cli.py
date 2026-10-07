@@ -64,6 +64,8 @@ def main(argv=None):
         return wizard()
     parser = argparse.ArgumentParser(description='Move AI/project storage; keep desktop installers and Windows-managed package data in place.')
     commands = parser.add_subparsers(dest='action', required=True)
+    repair = commands.add_parser('repair-worker', help=argparse.SUPPRESS)
+    repair.add_argument('--record', required=True)
     plan = commands.add_parser('plan', help='Create an explicit path plan; no source files are changed')
     plan.add_argument('--storage-root', required=True)
     plan.add_argument('--project', action='append', default=[])
@@ -121,7 +123,10 @@ def main(argv=None):
     proof.add_argument('--output', required=True)
     args = parser.parse_args(argv)
     try:
-        if args.action == 'plan':
+        if args.action == 'repair-worker':
+            from .repair import run_job
+            return run_job(args.record)
+        elif args.action == 'plan':
             roots = discover(args.storage_root, args.project, args.profile)
             for custom in args.root:
                 if '=' not in custom:

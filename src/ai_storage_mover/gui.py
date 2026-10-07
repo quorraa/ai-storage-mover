@@ -24,6 +24,29 @@ class SetupAPI:
         self._result = None
         self._operation = None
         self._started = None
+        self._repair = None
+        try:
+            self._repair = Path(read_json(self._repair_pointer())['record'])
+        except (OSError, ValueError, KeyError):
+            pass
+
+    def _repair_pointer(self):
+        return self._recent_file().with_name('recent-repair.local.json')
+
+    def _repair_status(self):
+        if not self._repair:
+            return None
+        try:
+            result = read_json(self._repair / 'status.json')
+            result['record'] = str(self._repair)
+            result['mode'] = read_json(self._repair / 'request.json')['mode']
+            from .repair import TERMINAL
+            result['active'] = result['phase'] not in TERMINAL
+            if result['active'] and time.time() - result.get('updated', 0) > 35 * 60:
+                result.update(active=False, phase='failed', detail='Repair worker stopped responding. Inspect the retained record before trying again.')
+            return result
+        except (OSError, ValueError, KeyError):
+            return dict(active=False, phase='failed', detail='Repair record is unavailable.', record=str(self._repair))
 
     def _recent_file(self):
         base = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).resolve().parents[2] / '.runs'
@@ -38,6 +61,8 @@ class SetupAPI:
     def _idle(self):
         if self._busy:
             raise MigrationError('Wait for the current operation to finish')
+        if (self._repair_status() or {}).get('active'):
+            raise MigrationError('Wait for the Codex repair check or repair to finish')
 
     def _task(self, name, action):
         with self._lock:
@@ -65,12 +90,42 @@ class SetupAPI:
                          result=self._result, stopping=self._stop.is_set(),
                          elapsed=int(time.monotonic() - self._started) if self._started else 0,
                          session=self._summary(), cleanup_phrase=CLEANUP_PHRASE)
+            value['repair'] = self._repair_status()
             if self._session and self._operation in ('migration', 'cleanup'):
                 try:
                     value['progress'] = read_json(Path(self._session['plan']['run_dir']) / 'status.json')
                 except (OSError, ValueError):
                     value['progress'] = {'percent': 0, 'detail': 'Checking apps and folders…'}
             return value
+
+    def check_repair(self):
+        with self._lock:
+            self._idle()
+            from .repair import start_job
+            self._repair = start_job(self._recent_file().parent / 'repairs', 'inspect')
+            atomic_json(self._repair_pointer(), dict(record=str(self._repair)))
+            return self._repair_status()
+
+    def start_repair(self, confirmed=False):
+        with self._lock:
+            self._idle()
+            previous = self._repair_status() or {}
+            inspection = previous.get('inspection')
+            if confirmed is not True or previous.get('phase') != 'complete' or not inspection or not inspection.get('affected'):
+                raise MigrationError('Check this computer and confirm the repair first.')
+            from .repair import start_job
+            self._repair = start_job(self._recent_file().parent / 'repairs', 'apply', inspection)
+            atomic_json(self._repair_pointer(), dict(record=str(self._repair)))
+            return self._repair_status()
+
+    def stop_repair(self):
+        if self._repair and (self._repair_status() or {}).get('active'):
+            (self._repair / 'STOP').touch()
+        return {'stopping': True}
+
+    def open_repair_record(self):
+        if self._repair and self._repair.is_dir() and os.name == 'nt':
+            os.startfile(str(self._repair))
 
     def _summary(self):
         if not self._session:
@@ -84,7 +139,8 @@ class SetupAPI:
         self._idle()
         import webview
         result = self._window.create_file_dialog(webview.FileDialog.FOLDER, directory=current or '')
-        return str(Path(result[0]).resolve()) if result else None
+        # Keep logical aliases until the backend has checked protected paths.
+        return str(Path(result[0]).absolute()) if result else None
 
     def drives(self):
         result = []

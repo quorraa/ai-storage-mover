@@ -76,7 +76,16 @@ async function exercise(p) {
   $('[data-action="remove-project"]').click();
   for(let n=0;n<100 && state.pending;n++) await new Promise(r=>setTimeout(r,25));
   let nearbyFocus=document.activeElement===$('[data-action="remove-project"]');
-  return {visibleDefaults, immediateRows, accurate, temps, headingFocus, nearbyFocus, preparedRun};
+  state.snapshot={repair:{phase:'complete',active:false,inspection:{affected:true,
+    public:'C:\\Users\\Demo\\AppData\\Roaming\\Codex',source:'E:\\AI\\Data\\Codex'}}};
+  await handlers.repair();
+  let repairInitiallyBlocked=$('[data-action=repair-start]').disabled;
+  $('#repair-confirmed').checked=true;
+  $('#repair-confirmed').dispatchEvent(new Event('change',{bubbles:true}));
+  let repairGate=repairInitiallyBlocked&&!$('[data-action=repair-start]').disabled;
+  state.snapshot={repair:{phase:'complete',active:false,receipt:{applied:true}}};render();
+  let repairCompletion=$('h1').textContent==='Codex profile restored.'&&!$('[data-action=repair-start]');
+  return {visibleDefaults, immediateRows, accurate, temps, headingFocus, nearbyFocus, preparedRun, repairGate, repairCompletion};
 }
 exercise(PATHS).then(r=>window.__flowResult=r).catch(e=>window.__flowResult={error:String(e)});
 """
@@ -104,7 +113,7 @@ try:
     webview.start(exercise, gui='edgechromium' if os.name == 'nt' else None,
                   debug=False, http_server=False, private_mode=True)
     assert result and not result.get('error'), result
-    for check in ('visibleDefaults', 'immediateRows', 'accurate', 'temps', 'headingFocus', 'nearbyFocus'):
+    for check in ('visibleDefaults', 'immediateRows', 'accurate', 'temps', 'headingFocus', 'nearbyFocus', 'repairGate', 'repairCompletion'):
         assert result.get(check) is True, result
     assert api._started_plan == result['preparedRun'], 'Started a different plan than Review displayed'
     assert (source / 'keep.txt').read_text() == 'untouched original'

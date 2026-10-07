@@ -14,6 +14,10 @@ $StorageRoot=[IO.Path]::GetFullPath($StorageRoot)
 if(-not $ProjectsPath){$ProjectsPath=Join-Path $StorageRoot 'Projects'}
 $ProjectsPath=[IO.Path]::GetFullPath($ProjectsPath)
 $plan=Get-Content -LiteralPath $PlanPath -Raw | ConvertFrom-Json
+if($RuntimeInput){
+    $candidate=Get-Content -LiteralPath $RuntimeInput -Raw | ConvertFrom-Json
+    if($candidate.environment.PSObject.Properties.Name -contains 'CODEX_ELECTRON_USER_DATA_PATH'){throw 'Desktop profile relocation is blocked. Use Repair Codex for an older migration.'}
+}
 function Invoke-Mover([string[]]$Arguments){
     if($BundledRuntime){ & $PythonPath @Arguments }else{ & $PythonPath -m ai_storage_mover @Arguments }
     if($LASTEXITCODE -ne 0){throw ('Storage operation failed: '+$Arguments[0]+'. Original evidence was retained.')}

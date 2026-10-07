@@ -34,8 +34,46 @@ def protected(path):
     # Inspect Windows syntax even in cross-platform tests.
     parts = [p.casefold() for p in PureWindowsPath(str(path)).parts]
     return ("windowsapps" in parts or "modifiablewindowsapps" in parts
+            or (parts and parts[-1] == 'appdata')
+            or (len(parts) >= 2 and parts[-2] == 'appdata' and parts[-1] in ('local', 'roaming'))
             or (len(parts) > 1 and parts[1] == "windows")
-            or any(parts[i:i + 3] == ["appdata", "local", "packages"] for i in range(len(parts))))
+            or any(parts[i:i + 3] == ["appdata", "local", "packages"] for i in range(len(parts)))
+            or any(parts[i] == 'appdata' and parts[i + 1] in ('local', 'roaming')
+                   and parts[i + 2] in ('codex', 'claude', 'chatgpt') for i in range(len(parts) - 2)))
+
+
+def assert_movable(path):
+    """Check logical paths BEFORE resolving junctions, including broad parent selections."""
+    path = Path(os.path.abspath(path))
+    if protected(path):
+        raise MigrationError(f'Desktop profiles and Windows-managed storage stay in place: {path}. Use Repair Codex for an older profile migration.')
+    # Fixed-depth probes, never a drive-wide crawl. Covers another user's profile too.
+    for relative in ('AppData', 'Local/Packages', 'Packages', 'WindowsApps',
+                     'Local/Codex', 'Local/Claude', 'Local/ChatGPT',
+                     'Roaming/Codex', 'Roaming/Claude', 'Roaming/ChatGPT'):
+        child = path / relative
+        if os.path.lexists(child):
+            raise MigrationError(f'This folder includes desktop or Windows-managed data: {child}. Select individual project or tool folders.')
+    home = Path.home()
+    local = Path(os.environ.get('LOCALAPPDATA', home / 'AppData' / 'Local'))
+    roaming = Path(os.environ.get('APPDATA', home / 'AppData' / 'Roaming'))
+    reserved = [base / name for base in (local, roaming) for name in ('Codex', 'Claude', 'ChatGPT')]
+    reserved += [local / 'Packages', local / 'Temp', Path(os.environ.get('WINDIR', 'C:/Windows'))]
+    override = os.environ.get('CODEX_ELECTRON_USER_DATA_PATH')
+    if override:
+        reserved.append(Path(override))
+    for blocked in reserved:
+        # Preserve the logical alias AND its current physical target.
+        for candidate in (blocked.absolute(), blocked.resolve()):
+            if inside(path, candidate) or inside(candidate, path):
+                raise MigrationError(f'This selection overlaps protected desktop/system storage: {blocked}. Select individual project or tool folders.')
+    return path
+
+
+def validate_runtime(runtime):
+    if any(key.upper() == 'CODEX_ELECTRON_USER_DATA_PATH' for key in runtime.get('environment', {})):
+        raise MigrationError('Desktop profile relocation is no longer supported. Remove CODEX_ELECTRON_USER_DATA_PATH from this saved setup; use Repair Codex to check an older migration.')
+    return runtime
 
 
 def physical_parents(path):
@@ -77,6 +115,8 @@ def validate(plan):
     paths = []
     ids = set()
     for entry in plan["roots"]:
+        if entry.get('provider') in ('codex-desktop', 'claude-desktop', 'chatgpt-desktop'):
+            raise MigrationError('Desktop profiles stay in place. Use Repair Codex for an older migration.')
         if not re.fullmatch(r"[a-zA-Z0-9_-]+", entry.get("id", "")) or entry["id"] in ids:
             raise MigrationError("Root IDs must be unique simple identifiers")
         ids.add(entry["id"])
@@ -84,6 +124,7 @@ def validate(plan):
             path = Path(entry[field])
             if not path.is_absolute() or path == Path(path.anchor) or protected(path):
                 raise MigrationError(f"Protected, relative, or volume-root path: {path}")
+            assert_movable(path)
             physical_parents(path)
             paths.append(str(path))
     for i, a in enumerate(paths):

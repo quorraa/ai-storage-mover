@@ -6,7 +6,7 @@ import re
 import tomllib
 import uuid
 
-from .model import MigrationError, atomic_json
+from .model import MigrationError, atomic_json, validate, validate_runtime
 from .references import repoint_claude, repoint_codex, repoint_files
 
 
@@ -46,6 +46,8 @@ def codex_environment(text, environment):
 
 
 def configure(plan, runtime, *, codex=None, claude=None, desktops=(), projects=None, apps_closed=False):
+    validate(plan)
+    validate_runtime(runtime)
     if not apps_closed:
         raise MigrationError('Close AI apps before configuring saved paths; use --apps-closed')
     if runtime.get('schema') != 1:

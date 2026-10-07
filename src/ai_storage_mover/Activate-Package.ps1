@@ -6,6 +6,7 @@ $ErrorActionPreference='Stop'
 if($RuntimePath){
     $runtime=Get-Content -LiteralPath $RuntimePath -Raw|ConvertFrom-Json
     if($runtime.schema -ne 1){throw 'Unsupported runtime schema'}
+    if($runtime.environment.PSObject.Properties.Name -contains 'CODEX_ELECTRON_USER_DATA_PATH'){throw 'Desktop profile relocation is blocked. Use Repair Codex for an older migration.'}
     foreach($property in $runtime.environment.PSObject.Properties){
         if($property.Name -notmatch '^[A-Za-z_][A-Za-z0-9_]*$' -or -not [IO.Path]::IsPathRooted([string]$property.Value)){throw 'Invalid runtime storage variable'}
         [IO.Directory]::CreateDirectory([string]$property.Value)|Out-Null

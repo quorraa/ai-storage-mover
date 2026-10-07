@@ -8,4 +8,5 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 .empty button .icon{width:20px;height:20px;margin:0}.check-list{max-height:280px;overflow:auto}.review-list{max-height:235px;overflow:auto}.backup-list{max-height:155px;overflow:auto}.temp-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px}.temp-fields .field{margin:0}.temp-fields .field-control{flex-wrap:wrap}.temp-fields .field-control input{flex-basis:100%}.temp-fields .field-control button{width:100%}.row .category{display:none}
 .future-locations{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:16px 0}.future-locations .path{margin-top:3px}h1:focus{outline:none}
+#repair-entry{width:100%;justify-content:flex-start;margin:0 0 16px}
 .workspace{position:relative}header{position:absolute;right:38px;top:44px;height:auto;padding:0}header[hidden]{display:none}main{padding-top:38px}@media(max-width:960px){header{right:28px}}

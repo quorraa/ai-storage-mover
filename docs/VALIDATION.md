@@ -1,5 +1,17 @@
 # Local validation — 6 October 2026
 
+## Desktop-profile safety v0.2.3
+
+Final local Windows/Python 3.14 checks: **67 fixture tests passed** in 27.650 seconds. The real WebView2 review/repair controls, Windows status integration, packaged independent-worker teardown test, and freshly extracted ZIP with Internet-zone flags passed. The ZIP check includes GUI launch, native copying, retained originals, future temp writes and the typed cleanup gate. A separate read-only inspection correctly identified an already-repaired physical Codex profile and made no profile changes.
+
+Desktop-profile moves now fail in the backend, including manual selections, logical junction aliases, enclosing user/AppData folders, old saved plans and desktop-profile runtime overrides. CLI profiles and supported development caches remain eligible.
+
+The repair is tested against disposable profiles: retained original target and account state, preserved caches and empty directories, repeat inspection, corrupt copies, source changes, stale previews, insufficient disk, cancellation, running apps, nested links and rename failure. These fixtures never redirect a real installed app. A real WebView2 flow verifies the repair acknowledgment gate and completion state.
+
+The independent-worker test launches a bounded, read-only heartbeat through the same Windows Task Scheduler launcher used for repair. It terminates the launching process **and its child tree**, observes fresh heartbeats from the same unpackaged worker afterward, and verifies the one-shot task removes itself. This is an actual equivalent parent teardown, not a mocked process-lifetime test. Windows download CI repeats it with the bundled worker.
+
+The repair does not claim measured leak cessation on arbitrary computers. Its success status reports a verified profile copy and completed folder/cache repair. Real application behavior after reopening still needs checking; the earlier incident's measured repair is evidence for this specific remedy, not a universal app/driver guarantee.
+
 ## First-run layout v0.2.2
 
 The initial empty project screen was inspected in the real WebView2 window at 1120×790 in light mode and 880×690 in dark mode. The folder icon now sits inside the centered Choose a folder button and inherits its contrasting foreground. The previous standalone icon and the 1:1 icon/background contrast are removed. The existing folder-picker action, disabled Continue state, discovery controls and backup notice are retained. The README gallery now includes this initial screen, using only fictional state.
