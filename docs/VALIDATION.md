@@ -1,5 +1,13 @@
 # Local validation — 6 October 2026
 
+## Downloaded ZIP startup v0.2.1
+
+The v0.2.0 startup failure was reproduced with Windows Internet-zone metadata on the downloaded `Python.Runtime.dll`. Its bytes matched the published bundle. Tests of locally generated files had missed this download-specific failure. v0.2.1 places `AI Storage Mover.exe.config` beside the executable so the CLR can load this app's managed dependencies while retaining the download flags; it does not change system policy.
+
+The original extracted download passed its real WebView2 launch check after adding that configuration, with its `ZoneId=3` unchanged. A freshly packaged v0.2.1 ZIP was then extracted into a separate folder and every bundled file was marked with `ZoneId=3`. Real GUI rendering, light/dark switching, cleanup gating, native copying, retained originals, temporary writes and refusal of missing/wrong cleanup phrases passed. The flags remained present. The Windows download workflow now runs this test on the actual ZIP before uploading it.
+
+All **55 fixture tests passed** in 23.279 seconds on the local Windows/Python 3.14 build. The test simulates the file metadata of a browser download; it does not automate SmartScreen dialogs or guarantee behavior under every enterprise security policy.
+
 ## Desktop setup v0.2.0
 
 Windows with Python 3.14: **55 fixture tests passed** in 20.581 seconds on the final desktop revision. Cases cover saved desktop sessions, exact project destinations, nested profile/cache mapping, standalone Claude preferences, bounded discovery, native-copy failures, retained originals, corruption detected before deleting any root (including a previously hash-verified copy with unchanged size/timestamps), and the exact cleanup phrase in both the UI and backend. Detection covers Windows environment-variable casing, pip's actual cache directory, npm global packages, existing Codex desktop overrides, exclusion of stale packaged-app roaming copies, and older uv layouts. Windows PowerShell 5 status/journal integration passed. The offline UI bridge rejects unreviewed locations and unacknowledged cleanup.

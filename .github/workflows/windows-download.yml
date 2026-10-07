@@ -31,7 +31,22 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Bundled desktop fixtures failed' }
           python tools/bundle_licenses.py
           if ($LASTEXITCODE -ne 0) { throw 'Bundle notices failed' }
+      - name: Verify the downloaded ZIP with Windows Internet flags
+        shell: powershell
+        run: |
+          python tools/package_windows.py
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP packaging failed' }
+          $archive = Get-ChildItem -LiteralPath dist -Filter 'ai-storage-mover-v*-windows-x64.zip'
+          if (@($archive).Count -ne 1) { throw 'Expected one release ZIP' }
+          python tools/test_desktop_bundle.py --archive $archive.FullName --internet-zone
+          if ($LASTEXITCODE -ne 0) { throw 'Internet-marked ZIP fixtures failed' }
       - uses: actions/upload-artifact@v4
         with:
           name: ai-storage-mover-windows-x64
           path: dist/AI Storage Mover/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ai-storage-mover-windows-download
+          path: |
+            dist/ai-storage-mover-v*-windows-x64.zip
+            dist/SHA256SUMS.txt

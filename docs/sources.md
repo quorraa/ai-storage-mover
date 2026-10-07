@@ -9,6 +9,7 @@
 - [PyInstaller](https://pyinstaller.org/en/stable/usage.html): the desktop download bundles the Python runtime and UI dependencies in a portable folder with a windowed launcher.
 - [pywebview API](https://pywebview.flowrl.com/api/): native folder dialogs, the explicit Python bridge, local HTML and WebView2 rendering.
 - [Microsoft Edge WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/): the Windows rendering runtime and its Evergreen installer.
+- [Microsoft .NET remote assembly loading](https://learn.microsoft.com/en-us/dotnet/framework/configure-apps/file-schema/runtime/loadfromremotesources-element): the portable launcher includes a process-scoped configuration so managed dependencies can load with Windows download flags retained.
 - [Inter font](https://github.com/rsms/inter): bundled Inter Variable under the SIL Open Font License; its license is shipped with the font.
 
 An upstream [Claude MSIX launch issue](https://github.com/anthropics/claude-code/issues/68070) records the same untrusted-mount error on direct executable launch. Reports are evidence of a vendor-specific failure mode, not proof that every such error has the same cause. This tool uses package activation and preserves Windows security settings.
