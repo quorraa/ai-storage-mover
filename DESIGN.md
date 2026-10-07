@@ -310,7 +310,7 @@ The entire header is hidden while idle. It shows Finding folders… during an ac
 
 ### Cards / Containers
 
-Outlined lists are the recurring container. They use the list radius and a surface fill, with no shadow. Rows use a folder icon, a stronger short name, the full muted path and an explicit row action. Borders divide rows without extra card spacing. The empty project list contains its folder icon and Choose a folder action without repeating the page title or instructions. Review contains the actual routes, future temp locations and relevant confirmations, with no technical reassurance strip.
+Outlined lists are the recurring container. They use the list radius and a surface fill, with no shadow. Rows use a folder icon, a stronger short name, the full muted path and an explicit row action. Borders divide rows without extra card spacing. The empty project list contains one centered Choose a folder button with its folder icon inside. The icon inherits the button foreground in both themes; no detached icon or repeated title/instructions sit beside it. Review contains the actual routes, future temp locations and relevant confirmations, with no technical reassurance strip.
 
 ### Notices and cleanup confirmation
 

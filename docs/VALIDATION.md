@@ -1,5 +1,9 @@
 # Local validation — 6 October 2026
 
+## First-run layout v0.2.2
+
+The initial empty project screen was inspected in the real WebView2 window at 1120×790 in light mode and 880×690 in dark mode. The folder icon now sits inside the centered Choose a folder button and inherits its contrasting foreground. The previous standalone icon and the 1:1 icon/background contrast are removed. The existing folder-picker action, disabled Continue state, discovery controls and backup notice are retained. The README gallery now includes this initial screen, using only fictional state.
+
 ## Downloaded ZIP startup v0.2.1
 
 The v0.2.0 startup failure was reproduced with Windows Internet-zone metadata on the downloaded `Python.Runtime.dll`. Its bytes matched the published bundle. Tests of locally generated files had missed this download-specific failure. v0.2.1 places `AI Storage Mover.exe.config` beside the executable so the CLR can load this app's managed dependencies while retaining the download flags; it does not change system policy.

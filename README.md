@@ -10,12 +10,16 @@ Move an existing AI and development setup when projects, caches and build files 
 
 Fictional projects, paths and storage figures. Progress is illustrative.
 
-![Choose projects in light mode](docs/screenshots/projects-light.png)
+![First-run folder selection in light mode](docs/screenshots/empty-projects-light.png)
 
 ![Profiles, caches and future temp folders in dark mode](docs/screenshots/data-dark.png)
 
 <details>
-<summary>Destination, review, transfer and cleanup</summary>
+<summary>Project selection, destination, review, transfer and cleanup</summary>
+
+![First-run folder selection in a compact dark window](docs/screenshots/empty-projects-dark.png)
+
+![Selected projects in light mode](docs/screenshots/projects-light.png)
 
 ![Choose destination in a compact window](docs/screenshots/destination-dark.png)
 

@@ -3,6 +3,7 @@
 Requires Windows, the desktop extra and Pillow. No app profiles, disks, project
 records or credentials are inspected. No migration operations are available.
 """
+import argparse
 import ctypes
 from ctypes import wintypes
 import json
@@ -109,6 +110,9 @@ def capture(name):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--empty-only', action='store_true', help='Capture only the first-run project screen')
+    args = parser.parse_args()
     if os.name != 'nt':
         raise SystemExit('This captures the actual Windows window; run on Windows.')
     webview.settings['OPEN_DEVTOOLS_IN_DEBUG'] = False
@@ -144,7 +148,11 @@ def main():
                 time.sleep(.35)
                 capture(name)
 
-            shot('projects-light', "state.view='setup';state.page=0;theme('light')")
+            shot('empty-projects-light', "state.projects=[];state.visited=0;theme('light')")
+            shot('empty-projects-dark', "theme('dark')", compact=True)
+            if args.empty_only:
+                return
+            shot('projects-light', "state.projects=" + json.dumps(PROJECTS) + ";state.visited=3;state.view='setup';state.page=0;theme('light')")
             shot('destination-dark', "state.page=1;theme('dark')", compact=True,
                  ready="document.querySelectorAll('#drives button svg').length === 2 && document.querySelector('#space').textContent === '740 GB available'")
             shot('data-dark', "state.page=2;theme('dark')")
@@ -163,7 +171,7 @@ def main():
     webview.start(work, gui='edgechromium', debug=False, http_server=False, private_mode=True)
     if failures:
         raise failures[0]
-    print('Saved seven synthetic-only screenshots to docs/screenshots; no real data read or moved.')
+    print(f'Saved {2 if args.empty_only else 9} synthetic-only screenshots to docs/screenshots; no real data read or moved.')
 
 
 if __name__ == '__main__':
